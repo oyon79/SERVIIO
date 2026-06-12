@@ -1,0 +1,26 @@
+{
+  "scripts": {
+    "start": "npm --prefix backend start",
+    "test": "npm --prefix backend test",
+    "backend": "npm --prefix backend start",
+    "migrate": "npm --prefix backend run migrate",
+    "validate-config": "npm --prefix backend run validate-config",
+    "readiness:live": "npm --prefix backend run readiness:live",
+    "seed:demo": "npm --prefix backend run seed:demo",
+    "smoke:api": "npm --prefix backend run smoke:api",
+    "smoke:browser": "npm --prefix backend run smoke:browser",
+    "qa:frontend": "npm --prefix backend run qa:frontend",
+    "backup-db": "npm --prefix backend run backup-db",
+    "restore-db": "npm --prefix backend run restore-db",
+    "verify:release": "npm --prefix backend run verify:release"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.5.2",
+    "helmet": "^8.2.0",
+    "mysql2": "^3.22.4",
+    "socket.io": "^4.8.3"
+  }
+}

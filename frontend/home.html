@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SERVIIO - Home Dashboard</title>
+
+    <link rel="stylesheet" href="css/global.css" />
+    <link rel="stylesheet" href="css/home.css" />
+
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    />
+      <script src="js/config.js"></script>
+  </head>
+  <body>
+    <header class="navbar">
+      <div class="logo">
+        <img
+          src="Image/logo 2.png"
+          alt="SERVIIO Logo"
+          style="height: 30px; width: 30px; border-radius: 50%"
+        />
+        <span>SERVIIO</span>
+      </div>
+      <ul class="nav-links">
+        <li>
+          <a href="home.html" class="active"
+            ><i class="fa-solid fa-house"></i> Home</a
+          >
+        </li>
+        <li>
+          <a href="serviceArea.html"
+            ><i class="fa-solid fa-map-location-dot"></i> Service Area</a
+          >
+        </li>
+        <li>
+          <a href="providerList.html"
+            ><i class="fa-solid fa-users"></i> Provider</a
+          >
+        </li>
+        <li>
+          <a href="bookmark.html"
+            ><i class="fa-solid fa-bookmark"></i> Bookmark</a
+          >
+        </li>
+        <li>
+          <a href="profile.html"
+            ><i class="fa-solid fa-circle-user"></i> Profile</a
+          >
+        </li>
+        <li>
+          <div class="notification" aria-label="Notifications">
+            <i class="fa-solid fa-bell"></i>
+            <span class="badge">3</span>
+          </div>
+        </li>
+      </ul>
+    </header>
+
+    <main class="home-main">
+      <div class="sidebar">
+        <div>
+          <h3 class="section-title">
+            <i class="fa-solid fa-magnifying-glass"></i> Explore the area
+          </h3>
+          <input
+            type="text"
+            class="location-input"
+            aria-label="Search location"
+            placeholder="Write the location name"
+          />
+        </div>
+
+        <div>
+          <h3 class="section-title">
+            <i class="fa-solid fa-list-ul"></i> Select the type of service
+          </h3>
+          <div class="service-grid">
+            <button class="service-btn" data-service="Electrician">
+              <i class="fa-solid fa-bolt"></i> Electrician
+            </button>
+            <button class="service-btn" data-service="Plumber">
+              <i class="fa-solid fa-faucet-drip"></i> Plumber
+            </button>
+            <button class="service-btn" data-service="Cleaner">
+              <i class="fa-solid fa-broom"></i> Cleaner
+            </button>
+            <button class="service-btn" data-service="repair">
+              <i class="fa-solid fa-hammer"></i> Repair
+            </button>
+            <button class="service-btn" data-service="Painter">
+              <i class="fa-solid fa-paint-roller"></i> Painting
+            </button>
+            <button class="service-btn" data-service="carpenter">
+              <i class="fa-solid fa-chair"></i> Carpenter
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <select class="workload-select" id="workload" aria-label="Select workload">
+            <option value="" disabled selected>Pick workload</option>
+            <option value="light">Light Workload</option>
+            <option value="moderate">Moderate Workload</option>
+            <option value="hard">Hard Workload</option>
+          </select>
+        </div>
+
+        <button class="search-btn" id="searchBtn">Search Area</button>
+      </div>
+
+      <div class="map-container">
+        <div id="map"></div>
+
+        <div class="map-overlay-bottom">
+          <div class="provider-info">
+            <h4><i class="fa-solid fa-location-dot"></i> Service provider</h4>
+            <p>Find verified service providers near you</p>
+          </div>
+          <div>
+            <button
+              class="location-btn"
+              onclick="map.setView([23.8223, 90.3966], 14)"
+            >
+              <i class="fa-solid fa-location-arrow"></i> Your Location
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-container">
+        <div class="footer-logo">
+          <i class="fa-solid fa-hurricane"></i> SERVIIO
+        </div>
+
+        <div class="footer-links-grid">
+          <div class="footer-col">
+            <h4>Product</h4>
+            <ul>
+              <li><a href="landing.html">Overview</a></li>
+              <li><a href="providerList.html">Find Providers</a></li>
+              <li><a href="serviceArea.html">Service Areas</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4>For Users</h4>
+            <ul>
+              <li><a href="schedule.html">Schedule Service</a></li>
+              <li><a href="emergency.html">SOS Help</a></li>
+              <li><a href="bookmark.html">Saved Providers</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4>Account</h4>
+            <ul>
+              <li><a href="profile.html">Customer Profile</a></li>
+              <li><a href="profileBooking.html">Provider Dashboard</a></li>
+              <li><a href="login.html">Sign In</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <div class="legal-links">
+          <a href="legal.html#privacy">Privacy Policy</a>
+          <a href="legal.html#terms">Terms of Use</a>
+          <a href="legal.html#refunds">Sales and Refunds</a>
+        </div>
+        <div class="copyright">&copy; 2026 SERVIIO All Rights Reserved</div>
+      </div>
+    </footer>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+      // Initialize Map centered near Matikata/Mirpur (Dhaka)
+      const map = L.map("map").setView([23.8223, 90.3966], 14);
+
+      // Add OpenStreetMap tiles
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution: "&copy; OpenStreetMap",
+      }).addTo(map);
+
+      let currentMarkers = [];
+      let selectedService = null;
+      let providers = [];
+
+      const areaCoordinates = {
+        mirpur: [23.8223, 90.3654],
+        uttara: [23.8759, 90.3795],
+        gulshan: [23.7925, 90.4078],
+        banani: [23.7937, 90.4066],
+        dhanmondi: [23.7461, 90.3742],
+        badda: [23.7806, 90.4265],
+        "old dhaka": [23.7104, 90.4074],
+        "notun bazar": [23.7979, 90.4251],
+        unspecified: [23.8223, 90.3966],
+      };
+
+      function getApiBaseUrl() {
+        return window.Serviio?.apiBaseUrl || window.location.origin;
+      }
+
+      function escapeHtml(value) {
+        return String(value || "").replace(/[&<>"']/g, (char) => {
+          return {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;",
+          }[char];
+        });
+      }
+
+      function getProviderCoordinates(provider, index) {
+        const key = String(provider.location || "unspecified").toLowerCase();
+        const base = areaCoordinates[key] || areaCoordinates.unspecified;
+        const offset = (index % 5) * 0.0015;
+        return [base[0] + offset, base[1] - offset];
+      }
+
+      async function fetchProviders() {
+        try {
+          const response = await fetch(`${getApiBaseUrl()}/api/providers`);
+          const result = await response.json();
+          if (!response.ok || !result.success) {
+            throw new Error(result.message || "Failed to load providers");
+          }
+          providers = result.data || [];
+        } catch (error) {
+          console.error("Provider load failed:", error);
+          providers = [];
+        }
+      }
+
+      // Handle Service Selection (Clickable Grid)
+      const serviceBtns = document.querySelectorAll(".service-btn");
+      serviceBtns.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          serviceBtns.forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          selectedService = btn.getAttribute("data-service");
+        });
+      });
+
+      // Handle Search Button Click
+      document.getElementById("searchBtn").addEventListener("click", () => {
+        const workload = document.getElementById("workload").value;
+
+        if (!selectedService) {
+          Serviio.notify("Please select a service type first.", "warning");
+          return;
+        }
+        if (!workload) {
+          Serviio.notify("Please pick a workload option.", "warning");
+          return;
+        }
+
+        // Clear old markers
+        currentMarkers.forEach((marker) => map.removeLayer(marker));
+        currentMarkers = [];
+
+        const locationQuery = document
+          .querySelector(".location-input")
+          .value.trim()
+          .toLowerCase();
+
+        const filtered = providers.filter((provider) => {
+          const providerService = String(provider.service_type || "").toLowerCase();
+          const providerLocation = String(provider.location || "").toLowerCase();
+          const serviceMatches =
+            !selectedService ||
+            providerService.includes(selectedService.toLowerCase());
+          const locationMatches =
+            !locationQuery || providerLocation.includes(locationQuery);
+          return serviceMatches && locationMatches;
+        });
+
+        if (filtered.length === 0) {
+          Serviio.notify(`No ${selectedService} found in this area right now.`, "info");
+        } else {
+          filtered.forEach((provider, index) => {
+            const [lat, lng] = getProviderCoordinates(provider, index);
+            const providerName = `${provider.first_name || ""} ${
+              provider.last_name || ""
+            }`.trim();
+            const marker = L.marker([lat, lng])
+              .addTo(map)
+              .bindPopup(
+                `<b>${escapeHtml(providerName || "Service Provider")}</b><br>
+                ${escapeHtml(provider.service_type || "General Service")}<br>
+                ${escapeHtml(provider.location || "Location not set")}<br>
+                Accepts ${escapeHtml(workload)} workloads.<br>
+                <a href="schedule.html?provider_id=${encodeURIComponent(provider.id)}">Book now</a>`,
+              );
+            currentMarkers.push(marker);
+          });
+
+          // Pan map to the first result
+          map.setView(getProviderCoordinates(filtered[0], 0), 14);
+        }
+      });
+
+      fetchProviders();
+
+      // --- Live tracking: subscribe to authenticated active booking rooms.
+      (function setupLiveTracking() {
+        const token = localStorage.getItem("serviio_token");
+        if (!token) return;
+
+        const socketScript = document.createElement("script");
+        socketScript.src = "https://cdn.socket.io/4.5.4/socket.io.min.js";
+        socketScript.onload = async () => {
+          const socket = io(getApiBaseUrl(), { auth: { token } });
+          let trackedBookingId = null;
+          let providerMarker = null;
+
+          try {
+            const response = await fetch(`${getApiBaseUrl()}/api/bookings/my`, {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            const result = await response.json();
+            const activeBooking = (result.data || []).find((booking) =>
+              ["ON_THE_WAY", "ARRIVED", "IN_PROGRESS"].includes(booking.status),
+            );
+            if (!activeBooking) return;
+            trackedBookingId = activeBooking.id;
+            socket.emit("user:join_booking", {
+              bookingId: trackedBookingId,
+              token,
+            });
+          } catch (error) {
+            console.warn("Unable to subscribe to active booking tracking", error);
+            return;
+          }
+
+          socket.on("location_update", (payload) => {
+            if (String(payload.bookingId) !== String(trackedBookingId)) return;
+            const lat = payload.lat;
+            const lng = payload.lng;
+            if (!providerMarker) {
+              providerMarker = L.marker([lat, lng])
+                .addTo(map)
+                .bindPopup("Live Provider Location");
+            } else {
+              providerMarker.setLatLng([lat, lng]);
+            }
+          });
+        };
+        document.head.appendChild(socketScript);
+      })();
+    </script>
+  </body>
+</html>

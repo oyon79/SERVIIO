@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SERVIIO - Expert Provider Detail</title>
+    <link rel="stylesheet" href="css/global.css" />
+    <link rel="stylesheet" href="css/providerInfo1.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+      <script src="js/config.js"></script>
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="logo">SERVIIO</div>
+      <ul class="nav-links">
+        <li><a href="home.html">Home</a></li>
+        <li><a href="providerList.html" class="active">Providers</a></li>
+        <li><a href="profileBooking.html">Dashboard</a></li>
+        <li>
+          <a href="bookmark.html"><i class="fas fa-bookmark"></i> Saved</a>
+        </li>
+      </ul>
+    </nav>
+
+    <main class="info-container">
+      <div class="profile-main-card">
+        <div class="provider-identity">
+          <img
+            src="Image/asian-plumber-blue-overalls-clearing-blockage-drain 1.png"
+            alt="Specialist Photo"
+            class="provider-avatar"
+          />
+          <div class="identity-text">
+            <div class="name-badge-row">
+              <h2 id="fullName">Loading...</h2>
+              <span class="verification-badge" id="verificationBadge"
+                ><i class="fas fa-check-circle"></i> NID Verified</span
+              >
+            </div>
+            <p class="specialty" id="specialty">Loading provider profile...</p>
+            <p class="rating-row" id="ratingRow">
+              <i class="fas fa-star text-warning"></i> 4.9
+              <span>(42 completed tasks)</span>
+            </p>
+          </div>
+        </div>
+
+        <div class="bio-section">
+          <h3>Professional Background</h3>
+          <p id="bioText">Loading provider description...</p>
+        </div>
+
+        <div class="reviews-section">
+          <h3>Customer Reviews</h3>
+          <div id="providerReviews">Loading reviews...</div>
+        </div>
+
+        <div class="action-row">
+          <button class="btn-bookmark" id="bookmarkBtn" onclick="toggleBookmark()">
+            <i class="far fa-bookmark"></i> Save Expert
+          </button>
+          <button
+            class="btn-book-now"
+            id="bookNowBtn"
+            onclick="routeToSchedule()"
+          >
+            Book Appointment Slot
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <p>&copy; 2026 SERVIIO. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+      const urlParams = new URLSearchParams(window.location.search);
+      const providerId = urlParams.get("id") || urlParams.get("provider_id");
+      const authToken = localStorage.getItem("serviio_token");
+      const bookmarkBtn = document.getElementById("bookmarkBtn");
+      let isBookmarked = false;
+
+      async function toggleBookmark() {
+        if (!providerId) {
+          Serviio.notify("Provider profile is missing.", "warning");
+          return;
+        }
+
+        if (!authToken) {
+          window.location.href = `login.html?next=${encodeURIComponent(`providerInfo1.html?id=${providerId}`)}`;
+          return;
+        }
+
+        bookmarkBtn.disabled = true;
+        bookmarkBtn.innerHTML =
+          '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+        try {
+          const response = await fetch(
+            Serviio.apiUrl(`/api/bookmarks${isBookmarked ? `/${providerId}` : ""}`),
+            {
+              method: isBookmarked ? "DELETE" : "POST",
+              headers: {
+                Authorization: `Bearer ${authToken}`,
+                "Content-Type": "application/json",
+              },
+              body: isBookmarked
+                ? undefined
+                : JSON.stringify({ provider_id: Number(providerId) }),
+            },
+          );
+          const data = await response.json();
+          if (!response.ok || !data.success) {
+            throw new Error(data.message || "Unable to update saved provider.");
+          }
+
+          isBookmarked = !isBookmarked;
+          renderBookmarkButton();
+        } catch (error) {
+          Serviio.notify(error.message, "error");
+          renderBookmarkButton();
+        } finally {
+          bookmarkBtn.disabled = false;
+        }
+      }
+
+      function routeToSchedule() {
+        if (!providerId) {
+          Serviio.notify("Provider profile is missing.", "warning");
+          return;
+        }
+        window.location.href = `schedule.html?provider_id=${encodeURIComponent(providerId)}`;
+      }
+
+      function escapeHTML(value) {
+        return String(value || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+
+      function formatDate(value) {
+        if (!value) return "";
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return "";
+        return date.toLocaleDateString();
+      }
+
+      function renderStars(rating) {
+        const safeRating = Number(rating) || 0;
+        return Array.from({ length: 5 }, (_, index) =>
+          index < safeRating ? "&#9733;" : "&#9734;",
+        ).join("");
+      }
+
+      function renderBookmarkButton() {
+        bookmarkBtn.classList.toggle("saved", isBookmarked);
+        bookmarkBtn.innerHTML = isBookmarked
+          ? '<i class="fas fa-bookmark"></i> Saved Expert'
+          : '<i class="far fa-bookmark"></i> Save Expert';
+      }
+
+      async function loadProvider() {
+        if (!providerId) {
+          document.getElementById("fullName").textContent =
+            "Provider not found";
+          return;
+        }
+
+        try {
+          const resp = await fetch(
+            Serviio.apiUrl(`/api/providers/${providerId}`),
+          );
+          const data = await resp.json();
+
+          if (!resp.ok || !data.success) {
+            throw new Error(data.message || "Failed to load provider");
+          }
+
+          const provider = data.data;
+          document.getElementById("fullName").textContent =
+            `${provider.first_name} ${provider.last_name}`;
+          document.getElementById("specialty").textContent =
+            provider.service_type || "Service Provider";
+          document.getElementById("bioText").textContent =
+            provider.experience_summary ||
+            "No profile description available yet.";
+          document.getElementById("verificationBadge").innerHTML =
+            provider.is_verified
+              ? '<i class="fas fa-check-circle"></i> NID Verified'
+              : '<i class="fas fa-hourglass-half"></i> Pending Verification';
+          const rating = Number(provider.average_rating || 0).toFixed(1);
+          const totalReviews = Number(provider.total_reviews || 0);
+          document.getElementById("ratingRow").innerHTML =
+            `<i class="fas fa-star text-warning"></i> ${rating} <span>(${totalReviews} completed tasks)</span>`;
+        } catch (error) {
+          console.error(error);
+          document.getElementById("fullName").textContent =
+            "Provider not available";
+          document.getElementById("bioText").textContent =
+            "Unable to load provider profile right now.";
+        }
+      }
+
+      async function loadProviderReviews() {
+        const container = document.getElementById("providerReviews");
+        if (!providerId) {
+          container.innerText = "Reviews are unavailable.";
+          return;
+        }
+
+        try {
+          const response = await fetch(
+            Serviio.apiUrl(`/api/reviews/provider/${providerId}`),
+          );
+          const data = await response.json();
+
+          if (!response.ok || !data.success) {
+            throw new Error(data.message || "Failed to load reviews");
+          }
+
+          if (!data.data.length) {
+            container.innerText = "No customer reviews yet.";
+            return;
+          }
+
+          container.innerHTML = data.data
+            .map(
+              (review) => `
+                <div class="provider-review-item">
+                  <div class="review-heading">
+                    <strong>${escapeHTML(review.title || "Customer Review")}</strong>
+                    <span>${escapeHTML(formatDate(review.created_at))}</span>
+                  </div>
+                  <div class="review-stars">${renderStars(review.rating)}</div>
+                  <p>${escapeHTML(review.comment || "No comment provided.")}</p>
+                  <small>${escapeHTML(review.customer_name)} | ${escapeHTML(review.service_type || "Service")}</small>
+                </div>
+              `,
+            )
+            .join("");
+        } catch (error) {
+          console.error(error);
+          container.innerText = "Unable to load reviews right now.";
+        }
+      }
+
+      async function loadBookmarkStatus() {
+        if (!providerId || !authToken) {
+          renderBookmarkButton();
+          return;
+        }
+
+        try {
+          const response = await fetch(
+            Serviio.apiUrl(`/api/bookmarks/${providerId}`),
+            {
+              headers: { Authorization: `Bearer ${authToken}` },
+            },
+          );
+          const data = await response.json();
+          if (response.ok && data.success) {
+            isBookmarked = Boolean(data.data?.is_bookmarked);
+          }
+        } catch (error) {
+          console.error("Unable to load bookmark status", error);
+        }
+
+        renderBookmarkButton();
+      }
+
+      loadProvider();
+      loadProviderReviews();
+      loadBookmarkStatus();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SERVIIO - Provider Registration</title>
+    <link rel="stylesheet" href="css/global.css" />
+    <link rel="stylesheet" href="css/user.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+      <script src="js/config.js"></script>
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="logo">SERVIIO</div>
+      <ul class="nav-links">
+        <li><a href="home.html">Home</a></li>
+        <li><a href="login.html" class="active">Login / Register</a></li>
+      </ul>
+    </nav>
+
+    <main class="auth-container">
+      <div class="auth-card">
+        <div class="auth-header">
+          <h2>Join as a Service Provider</h2>
+          <p>
+            Register your skills and verify your identity to start getting jobs.
+          </p>
+        </div>
+
+        <form id="providerRegisterForm">
+          <div style="display: flex; gap: 10px">
+            <div class="form-group" style="flex: 1">
+              <label for="first_name">First Name (As per NID)</label>
+              <div class="input-wrapper">
+                <i class="fas fa-user input-icon"></i>
+                <input type="text" id="first_name" required />
+              </div>
+            </div>
+            <div class="form-group" style="flex: 1">
+              <label for="last_name">Last Name</label>
+              <div class="input-wrapper">
+                <input
+                  type="text"
+                  id="last_name"
+                  required
+                  style="padding-left: 15px"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="phone">Business Phone</label>
+            <div class="input-wrapper">
+              <i class="fas fa-phone input-icon"></i>
+              <input type="tel" id="phone" placeholder="01XXXXXXXXX" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="email">Business Email</label>
+            <div class="input-wrapper">
+              <i class="fas fa-envelope input-icon"></i>
+              <input type="email" id="email" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="nid">Bangladesh National ID (NID)</label>
+            <div class="input-wrapper">
+              <i class="fas fa-id-card input-icon"></i>
+              <input
+                type="number"
+                id="nid"
+                placeholder="10, 13, or 17 digit NID"
+                required
+                autocomplete="off"
+              />
+            </div>
+            <small
+              style="
+                color: #666;
+                font-size: 0.8rem;
+                display: block;
+                margin-top: 5px;
+              "
+              >*Strictly required for platform security.</small
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password</label>
+            <div class="input-wrapper">
+              <i class="fas fa-lock input-icon"></i>
+                <input
+                  type="password"
+                  id="password"
+                  placeholder="At least 8 characters"
+                  minlength="8"
+                  required
+                />
+            </div>
+          </div>
+
+          <div
+            id="errorBox"
+            class="alert-box error"
+            style="display: none"
+          ></div>
+          <div
+            id="successBox"
+            class="alert-box success"
+            style="display: none"
+          ></div>
+
+          <button type="submit" class="btn-auth" id="providerRegisterSubmitBtn">
+            Register & Verify NID
+          </button>
+        </form>
+
+        <div class="auth-footer">
+          <p>Already have an account? <a href="login.html">Sign In here</a></p>
+          <p style="margin-top: 10px">
+            <a href="role.html">&larr; Back to Role Selection</a>
+          </p>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      document
+        .getElementById("providerRegisterForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const errorBox = document.getElementById("errorBox");
+          const successBox = document.getElementById("successBox");
+          const submitBtn = document.getElementById("providerRegisterSubmitBtn");
+          errorBox.style.display = "none";
+          successBox.style.display = "none";
+
+          const payload = {
+            first_name: document.getElementById("first_name").value.trim(),
+            last_name: document.getElementById("last_name").value.trim(),
+            phone: document.getElementById("phone").value.trim(),
+            email: document.getElementById("email").value.trim(),
+            nid: document.getElementById("nid").value.trim(),
+            password: document.getElementById("password").value,
+            role: "provider",
+          };
+
+          // STRICT NID VALIDATION
+          const nidRegex = /^(?:\d{10}|\d{13}|\d{17})$/;
+          if (!nidRegex.test(payload.nid)) {
+            errorBox.textContent =
+              "Security Error: Please enter a valid 10, 13, or 17-digit Bangladesh NID.";
+            return (errorBox.style.display = "block");
+          }
+
+          if (payload.password.length < 8) {
+            errorBox.textContent =
+              "Password must be at least 8 characters long.";
+            return (errorBox.style.display = "block");
+          }
+
+          // Strict phone validation (Bangladesh mobile numbers start with 01 and have 11 digits)
+          const phoneRegex = /^01\d{9}$/;
+          if (!phoneRegex.test(payload.phone)) {
+            errorBox.textContent =
+              "Please enter a valid Bangladeshi phone number (11 digits, starting with 01).";
+            errorBox.style.display = "block";
+            return;
+          }
+
+          submitBtn.disabled = true;
+          submitBtn.textContent = "Creating Account...";
+
+          try {
+            const apiBase =
+              window.getApiBaseUrl?.() || window.Serviio?.apiBaseUrl || window.location.origin;
+            const response = await fetch(`${apiBase}/api/auth/register`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+              if (data.verification_required) {
+                if (data.otp) {
+                  sessionStorage.setItem(
+                    `serviio_registration_otp_${payload.email.toLowerCase()}`,
+                    data.otp,
+                  );
+                }
+                successBox.textContent =
+                  data.message || "Account created. Please verify your OTP.";
+                successBox.style.display = "block";
+                const target = `verify-registration.html?email=${encodeURIComponent(payload.email)}&role=provider`;
+                setTimeout(() => (window.location.href = target), 900);
+                return;
+              }
+
+              successBox.textContent =
+                "Verification pending. Account created! Redirecting...";
+              successBox.style.display = "block";
+              setTimeout(() => (window.location.href = "login.html"), 2500);
+            } else {
+              errorBox.textContent = data.message || "Registration failed.";
+              errorBox.style.display = "block";
+              submitBtn.disabled = false;
+              submitBtn.textContent = "Register & Verify NID";
+            }
+          } catch (error) {
+            console.error("Fetch error:", error);
+            errorBox.textContent =
+              "Server connection failed. Ensure backend is running on port 5000.";
+            errorBox.style.display = "block";
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Register & Verify NID";
+          }
+        });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,1818 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SERVIIO - Provider Dashboard & Bookings</title>
+    <!-- Assuming global.css handles the Navbar and Footer -->
+    <link rel="stylesheet" href="css/global.css" />
+    <link rel="stylesheet" href="css/profileBooking.css" />
+    <!-- FontAwesome for Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+      <script src="js/config.js"></script>
+  </head>
+  <body>
+    <!-- Global Navbar -->
+    <nav class="navbar">
+      <div class="logo">SERVIIO</div>
+      <ul class="nav-links">
+        <li><a href="home.html">Home</a></li>
+        <li><a href="serviceArea.html">Service Area</a></li>
+        <li><a href="providerList.html">Providers</a></li>
+        <li><a href="profileBooking.html" class="active">Dashboard</a></li>
+        <li><a href="login.html" id="logoutBtn">Logout</a></li>
+      </ul>
+    </nav>
+
+    <main class="dashboard-container">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="provider-profile-summary">
+          <img src="Image/logo 2.png" alt="Provider" id="providerAvatar" />
+          <h3 id="providerName">Loading...</h3>
+          <p class="badge" id="providerBadge">Verified Provider</p>
+          <p id="providerMeta" class="provider-meta"></p>
+          <p id="availabilityStatus" class="availability-status">
+            Availability: Loading...
+          </p>
+          <button
+            type="button"
+            id="shareLocationBtn"
+            class="dashboard-action-btn secondary"
+          >
+            <i class="fas fa-location-arrow"></i>
+            Start Sharing Location
+          </button>
+          <button
+            type="button"
+            id="availabilityBtn"
+            class="dashboard-action-btn primary"
+            aria-pressed="false"
+          >
+            <i class="fas fa-circle"></i>
+            <span id="availabilityBtnText">Mark Available</span>
+          </button>
+        </div>
+        <ul class="sidebar-menu">
+          <li>
+            <button type="button" class="active" data-tab="active-jobs"
+              ><i class="fas fa-briefcase"></i> Active Jobs</button
+            >
+          </li>
+          <li>
+            <button type="button" data-tab="messages"
+              ><i class="fas fa-comments"></i> Messages</button
+            >
+          </li>
+          <li>
+            <button type="button" data-tab="job-history"
+              ><i class="fas fa-history"></i> Job History</button
+            >
+          </li>
+          <li>
+            <button type="button" data-tab="reviews"
+              ><i class="fas fa-star"></i> My Reviews</button
+            >
+          </li>
+          <li>
+            <button type="button" data-tab="wallet"
+              ><i class="fas fa-wallet"></i> Wallet</button
+            >
+          </li>
+          <li>
+            <button type="button" data-tab="verification"
+              ><i class="fas fa-id-card"></i> Verification</button
+            >
+          </li>
+          <li>
+            <button type="button" data-tab="notifications"
+              ><i class="fas fa-bell"></i> Notifications</button
+            >
+          </li>
+          <li>
+            <button type="button" data-tab="settings"
+              ><i class="fas fa-cog"></i> Settings</button
+            >
+          </li>
+        </ul>
+      </aside>
+
+      <!-- Main Content -->
+      <section class="dashboard-content">
+        <div class="content-header">
+          <h2 id="dashboardTitle">Active Jobs</h2>
+          <p id="dashboardSummary">
+            Manage your schedule, verify handshakes, and keep customer work
+            moving.
+          </p>
+        </div>
+
+        <div class="dashboard-panels">
+          <section id="activeJobsPanel" class="dashboard-panel active">
+            <div class="panel-toolbar">
+              <h3>Active Jobs</h3>
+              <p>Open assignments, pending handshakes, and in-progress work.</p>
+            </div>
+            <div id="activeJobsContainer" class="bookings-grid">
+              <div class="loader">Loading active jobs...</div>
+            </div>
+          </section>
+
+          <section id="historyPanel" class="dashboard-panel">
+            <div class="panel-toolbar">
+              <h3>Job History</h3>
+              <p>Completed and cancelled jobs are stored here for review.</p>
+            </div>
+            <div id="historyContainer" class="bookings-grid">
+              <div class="loader">Loading job history...</div>
+            </div>
+          </section>
+
+          <section id="reviewsPanel" class="dashboard-panel">
+            <div class="panel-toolbar">
+              <h3>My Reviews</h3>
+              <p>See recent customer feedback and ratings.</p>
+            </div>
+            <div id="reviewsContainer" class="reviews-list">
+              <div class="loader">Loading reviews...</div>
+            </div>
+          </section>
+
+          <section id="messagesPanel" class="dashboard-panel">
+            <div class="panel-toolbar">
+              <h3>Booking Messages</h3>
+              <p>Coordinate safely with customers inside each booking record.</p>
+            </div>
+            <form id="bookingMessageForm" class="profile-settings-form">
+              <label>
+                Booking
+                <select id="messageBookingSelect"></select>
+              </label>
+              <div id="bookingMessageList" class="message-thread">
+                <div class="loader">Select a booking to load messages...</div>
+              </div>
+              <label>
+                Message
+                <textarea
+                  id="bookingMessageText"
+                  rows="3"
+                  maxlength="2000"
+                  placeholder="Write a booking update"
+                ></textarea>
+              </label>
+              <div class="form-actions">
+                <button type="submit" class="dashboard-action-btn primary">
+                  Send Message
+                </button>
+                <button
+                  type="button"
+                  class="dashboard-action-btn secondary"
+                  id="requestVoiceCallBtn"
+                >
+                  Request Voice Call
+                </button>
+                <p id="bookingMessageStatus" class="settings-message"></p>
+              </div>
+            </form>
+          </section>
+
+          <section id="walletPanel" class="dashboard-panel">
+            <div class="panel-toolbar">
+              <h3>Wallet & Escrow</h3>
+              <p>Track available earnings, pending escrow, and releases.</p>
+            </div>
+            <div id="walletContainer" class="bookings-grid">
+              <div class="loader">Loading wallet...</div>
+            </div>
+          </section>
+
+          <section id="verificationPanel" class="dashboard-panel">
+            <div class="panel-toolbar">
+              <h3>KYC Verification</h3>
+              <p>Submit identity, police clearance, selfie, and skill proof for admin review.</p>
+            </div>
+            <div id="verificationContainer" class="bookings-grid">
+              <div class="loader">Loading verification...</div>
+            </div>
+            <form id="verificationDocumentForm" class="profile-settings-form">
+              <div class="form-grid">
+                <label>
+                  Document Type
+                  <select id="verificationDocumentType">
+                    <option value="NID">NID</option>
+                    <option value="POLICE_CLEARANCE">Police Clearance</option>
+                    <option value="SKILL_CERTIFICATE">Skill Certificate</option>
+                    <option value="LIVE_SELFIE">Live Selfie</option>
+                    <option value="EXPERIENCE_PROOF">Experience Proof</option>
+                    <option value="OTHER">Other</option>
+                  </select>
+                </label>
+                <label>
+                  Document Number
+                  <input type="text" id="verificationDocumentNumber" />
+                </label>
+                <label>
+                  Document URL
+                  <input type="url" id="verificationDocumentUrl" placeholder="https://..." />
+                </label>
+                <label>
+                  Upload File
+                  <input
+                    type="file"
+                    id="verificationDocumentFile"
+                    accept=".pdf,image/jpeg,image/png,image/webp"
+                  />
+                </label>
+                <label>
+                  File Name
+                  <input type="text" id="verificationFileName" placeholder="nid-front.jpg" />
+                </label>
+              </div>
+              <label>
+                Notes
+                <textarea id="verificationNotes" rows="3"></textarea>
+              </label>
+              <div class="form-actions">
+                <button type="submit" class="dashboard-action-btn primary">
+                  Add Document
+                </button>
+                <button
+                  type="button"
+                  class="dashboard-action-btn secondary"
+                  id="submitVerificationBtn"
+                >
+                  Submit For Review
+                </button>
+                <p id="verificationMessage" class="settings-message"></p>
+              </div>
+            </form>
+          </section>
+
+          <section id="notificationsPanel" class="dashboard-panel">
+            <div class="panel-toolbar">
+              <h3>Notifications</h3>
+              <p>Recent booking, wallet, support, and verification updates.</p>
+            </div>
+            <div class="form-actions" style="margin-bottom: 12px">
+              <button
+                type="button"
+                class="dashboard-action-btn secondary"
+                id="markNotificationsReadBtn"
+              >
+                Mark All Read
+              </button>
+            </div>
+            <div id="notificationsContainer" class="bookings-grid">
+              <div class="loader">Loading notifications...</div>
+            </div>
+          </section>
+
+          <section id="settingsPanel" class="dashboard-panel">
+            <div class="panel-toolbar">
+              <h3>Settings</h3>
+              <p>Update your profile, contact info, and service details.</p>
+            </div>
+
+            <form id="settingsForm" class="profile-settings-form">
+              <div class="form-grid">
+                <label>
+                  First Name
+                  <input type="text" id="inputFirstName" name="first_name" />
+                </label>
+                <label>
+                  Last Name
+                  <input type="text" id="inputLastName" name="last_name" />
+                </label>
+                <label>
+                  Email
+                  <input type="email" id="inputEmail" name="email" />
+                </label>
+                <label>
+                  Phone
+                  <input type="text" id="inputPhone" name="phone" />
+                </label>
+                <label>
+                  Service Type
+                  <input
+                    type="text"
+                    id="inputServiceType"
+                    name="service_type"
+                  />
+                </label>
+                <label>
+                  Location
+                  <input type="text" id="inputLocation" name="location" />
+                </label>
+              </div>
+
+              <label>
+                Experience Summary
+                <textarea
+                  id="inputExperience"
+                  name="experience_summary"
+                  rows="4"
+                ></textarea>
+              </label>
+              <label>
+                National ID / NID
+                <input type="text" id="inputNidNumber" name="nid_number" />
+              </label>
+
+              <div class="form-actions">
+                <button
+                  type="submit"
+                  class="dashboard-action-btn primary"
+                  id="saveSettingsBtn"
+                >
+                  Save Settings
+                </button>
+                <p id="settingsMessage" class="settings-message"></p>
+              </div>
+            </form>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <!-- Global Footer -->
+    <footer class="footer">
+      <p>&copy; 2026 SERVIIO. All Rights Reserved.</p>
+    </footer>
+
+    <!-- API Integration Script -->
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", async () => {
+        const session = window.Serviio.requireAuth({
+          roles: ["provider"],
+          next: "profileBooking.html",
+        });
+        if (!session.allowed) {
+          return;
+        }
+        const token = session.token;
+        const currentUser = session.user;
+
+        const providerName = document.getElementById("providerName");
+        const providerBadge = document.getElementById("providerBadge");
+        const providerMeta = document.getElementById("providerMeta");
+        const availabilityStatus =
+          document.getElementById("availabilityStatus");
+        const availabilityBtn = document.getElementById("availabilityBtn");
+        const availabilityBtnText = document.getElementById(
+          "availabilityBtnText",
+        );
+        const shareBtn = document.getElementById("shareLocationBtn");
+        const menuLinks = document.querySelectorAll(".sidebar-menu li button");
+        const dashboardTitle = document.getElementById("dashboardTitle");
+        const dashboardSummary = document.getElementById("dashboardSummary");
+        const activeJobsPanel = document.getElementById("activeJobsPanel");
+        const historyPanel = document.getElementById("historyPanel");
+        const messagesPanel = document.getElementById("messagesPanel");
+        const reviewsPanel = document.getElementById("reviewsPanel");
+        const walletPanel = document.getElementById("walletPanel");
+        const verificationPanel = document.getElementById("verificationPanel");
+        const notificationsPanel = document.getElementById(
+          "notificationsPanel",
+        );
+        const settingsPanel = document.getElementById("settingsPanel");
+        const tabPanels = {
+          "active-jobs": activeJobsPanel,
+          messages: messagesPanel,
+          "job-history": historyPanel,
+          reviews: reviewsPanel,
+          wallet: walletPanel,
+          verification: verificationPanel,
+          notifications: notificationsPanel,
+          settings: settingsPanel,
+        };
+        let activeTab = "active-jobs";
+        const activeJobsContainer = document.getElementById(
+          "activeJobsContainer",
+        );
+        const historyContainer = document.getElementById("historyContainer");
+        const messageBookingSelect = document.getElementById(
+          "messageBookingSelect",
+        );
+        const bookingMessageForm =
+          document.getElementById("bookingMessageForm");
+        const bookingMessageList =
+          document.getElementById("bookingMessageList");
+        const bookingMessageText =
+          document.getElementById("bookingMessageText");
+        const bookingMessageStatus = document.getElementById(
+          "bookingMessageStatus",
+        );
+        const requestVoiceCallBtn =
+          document.getElementById("requestVoiceCallBtn");
+        const reviewsContainer = document.getElementById("reviewsContainer");
+        const walletContainer = document.getElementById("walletContainer");
+        const verificationContainer = document.getElementById(
+          "verificationContainer",
+        );
+        const verificationDocumentForm = document.getElementById(
+          "verificationDocumentForm",
+        );
+        const submitVerificationBtn = document.getElementById(
+          "submitVerificationBtn",
+        );
+        const verificationMessage =
+          document.getElementById("verificationMessage");
+        const notificationsContainer = document.getElementById(
+          "notificationsContainer",
+        );
+        const markNotificationsReadBtn = document.getElementById(
+          "markNotificationsReadBtn",
+        );
+        const settingsForm = document.getElementById("settingsForm");
+        const settingsMessage = document.getElementById("settingsMessage");
+
+        const inputFirstName = document.getElementById("inputFirstName");
+        const inputLastName = document.getElementById("inputLastName");
+        const inputEmail = document.getElementById("inputEmail");
+        const inputPhone = document.getElementById("inputPhone");
+        const inputServiceType = document.getElementById("inputServiceType");
+        const inputLocation = document.getElementById("inputLocation");
+        const inputExperience = document.getElementById("inputExperience");
+        const inputNidNumber = document.getElementById("inputNidNumber");
+
+        let providerProfile = null;
+        let providerIsAvailable = true;
+        let availabilityRequestPending = false;
+        let currentBookings = [];
+        let currentReviews = [];
+        let currentWallet = null;
+        let currentVerification = null;
+        let currentNotifications = [];
+        let bookingSocket = null;
+
+        function escapeHtml(value) {
+          return String(value || "").replace(/[&<>"']/g, (char) => {
+            return {
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            }[char];
+          });
+        }
+
+        function escapeJsArg(value) {
+          return escapeHtml(JSON.stringify(String(value ?? "")));
+        }
+
+        function statusClass(value) {
+          return String(value || "unknown")
+            .toLowerCase()
+            .replace(/[^a-z0-9_-]/g, "-");
+        }
+
+        function formatDisplayDate(value, fallback = "N/A", withTime = true) {
+          if (!value) return fallback;
+          const date = new Date(value);
+          if (Number.isNaN(date.getTime())) return fallback;
+          return withTime ? date.toLocaleString() : date.toLocaleDateString();
+        }
+
+        function setActivePanel(tabName) {
+          activeTab = tabName;
+
+          Object.entries(tabPanels).forEach(([tabKey, panel]) => {
+            if (!panel) return;
+            const isSelected = tabKey === tabName;
+            panel.style.display = isSelected ? "block" : "none";
+            panel.classList.toggle("active", isSelected);
+          });
+
+          menuLinks.forEach((link) => {
+            link.classList.toggle("active", link.dataset.tab === tabName);
+          });
+
+          if (tabName === "active-jobs") {
+            dashboardTitle.textContent = "Active Jobs";
+            dashboardSummary.textContent =
+              "Manage your open assignments, verify handshakes, and keep jobs moving.";
+          } else if (tabName === "job-history") {
+            dashboardTitle.textContent = "Job History";
+            dashboardSummary.textContent =
+              "See completed and cancelled jobs, plus your recent work records.";
+          } else if (tabName === "messages") {
+            dashboardTitle.textContent = "Booking Messages";
+            dashboardSummary.textContent =
+              "Use booking-scoped messages and call requests to coordinate with customers.";
+            renderMessageBookingOptions();
+            loadBookingMessages();
+          } else if (tabName === "reviews") {
+            dashboardTitle.textContent = "My Reviews";
+            dashboardSummary.textContent =
+              "Customer feedback helps you improve and build trust.";
+          } else if (tabName === "wallet") {
+            dashboardTitle.textContent = "Wallet & Escrow";
+            dashboardSummary.textContent =
+              "Track available earnings, pending escrow, and release history.";
+            fetchWallet();
+          } else if (tabName === "verification") {
+            dashboardTitle.textContent = "KYC Verification";
+            dashboardSummary.textContent =
+              "Submit identity, police clearance, selfie, and skill evidence for admin review.";
+            fetchVerification();
+          } else if (tabName === "notifications") {
+            dashboardTitle.textContent = "Notifications";
+            dashboardSummary.textContent =
+              "Review recent Serviio updates across your work and wallet.";
+            fetchNotifications();
+          } else if (tabName === "settings") {
+            dashboardTitle.textContent = "Settings";
+            dashboardSummary.textContent =
+              "Update your provider profile, contact details, and service offerings.";
+          }
+        }
+
+        async function parseJsonResponse(response) {
+          const text = await response.text();
+          if (!text) return {};
+
+          try {
+            return JSON.parse(text);
+          } catch (error) {
+            console.error(
+              "Failed to parse JSON response:",
+              response.url,
+              "status:",
+              response.status,
+              "body:",
+              text,
+            );
+            throw new Error(
+              `Invalid JSON response from server (${response.status})`,
+            );
+          }
+        }
+
+        function updateAvailabilityButton() {
+          if (!availabilityBtn) return;
+          availabilityBtn.setAttribute(
+            "aria-pressed",
+            providerIsAvailable ? "true" : "false",
+          );
+          availabilityBtn.classList.toggle("is-online", providerIsAvailable);
+          availabilityBtn.classList.toggle("is-offline", !providerIsAvailable);
+          availabilityBtnText.textContent = providerIsAvailable
+            ? "Mark Unavailable"
+            : "Mark Available";
+          availabilityStatus.innerHTML = providerIsAvailable
+            ? '<span class="status-dot online"></span> Availability: Online'
+            : '<span class="status-dot offline"></span> Availability: Offline';
+        }
+
+        async function toggleAvailability() {
+          if (availabilityRequestPending) return;
+          const nextState = !providerIsAvailable;
+
+          availabilityRequestPending = true;
+          availabilityBtn.disabled = true;
+          availabilityBtn.classList.add("is-loading");
+          availabilityBtnText.textContent = "Updating...";
+          providerIsAvailable = nextState;
+          updateAvailabilityButton();
+
+          try {
+            const response = await fetch(
+              Serviio.apiUrl("/api/providers/me/availability"),
+              {
+                method: "PUT",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ is_available: nextState }),
+              },
+            );
+            const data = await parseJsonResponse(response);
+            if (!response.ok || !data.success) {
+              throw new Error(data?.message || "Unable to save availability");
+            }
+            providerIsAvailable = !!data.data.is_available;
+            updateAvailabilityButton();
+          } catch (error) {
+            console.error("Unable to update availability", error);
+            providerIsAvailable = !nextState;
+            updateAvailabilityButton();
+            Serviio.notify(
+              "Unable to update availability. Please try again.",
+              "error",
+            );
+          } finally {
+            availabilityRequestPending = false;
+            availabilityBtn.disabled = false;
+            availabilityBtn.classList.remove("is-loading");
+          }
+        }
+
+        async function fetchProfile() {
+          try {
+            const response = await fetch(
+              Serviio.apiUrl("/api/providers/me"),
+              {
+                headers: { Authorization: `Bearer ${token}` },
+              },
+            );
+            const result = await parseJsonResponse(response);
+            if (response.ok && result.success) {
+              providerProfile = result.data;
+              providerIsAvailable = !!providerProfile.is_available;
+              providerName.textContent = `${providerProfile.first_name} ${providerProfile.last_name}`;
+              providerBadge.textContent = providerProfile.is_verified
+                ? "Verified Provider"
+                : `Verification: ${providerProfile.verification_status || "Pending"}`;
+              providerMeta.textContent = `${providerProfile.service_type || "Service Provider"} | ${providerProfile.location || "No location set"}`;
+              updateAvailabilityButton();
+              populateSettingsForm();
+            }
+          } catch (error) {
+            console.error("Unable to load provider profile", error);
+          }
+        }
+
+        function populateSettingsForm() {
+          if (!providerProfile) return;
+          inputFirstName.value = providerProfile.first_name || "";
+          inputLastName.value = providerProfile.last_name || "";
+          inputEmail.value = providerProfile.email || "";
+          inputPhone.value = providerProfile.phone || "";
+          inputServiceType.value = providerProfile.service_type || "";
+          inputLocation.value = providerProfile.location || "";
+          inputExperience.value = providerProfile.experience_summary || "";
+          inputNidNumber.value = providerProfile.nid_number || "";
+        }
+
+        async function fetchBookings() {
+          try {
+            const response = await fetch(
+              Serviio.apiUrl("/api/bookings/provider"),
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "application/json",
+                },
+              },
+            );
+            const result = await parseJsonResponse(response);
+            if (response.ok && result.success) {
+              currentBookings = result.data || [];
+              renderActiveJobs();
+              renderHistory();
+              renderMessageBookingOptions();
+            } else {
+              throw new Error(result.message || "Unable to fetch bookings");
+            }
+          } catch (error) {
+            console.error(error);
+            displayEmptyState(
+              activeJobsContainer,
+              "Unable to load jobs. Please try again later.",
+            );
+            displayEmptyState(
+              historyContainer,
+              "Unable to load history. Please try again later.",
+            );
+          }
+        }
+
+        async function fetchReviews() {
+          try {
+            const response = await fetch(
+              Serviio.apiUrl("/api/providers/me/reviews"),
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              },
+            );
+            const result = await parseJsonResponse(response);
+            if (response.ok && result.success) {
+              currentReviews = result.data || [];
+              renderReviews();
+            } else {
+              throw new Error(result.message || "Unable to fetch reviews");
+            }
+          } catch (error) {
+            console.error(error);
+            displayEmptyState(
+              reviewsContainer,
+              "Unable to load reviews. Please try again later.",
+            );
+          }
+        }
+
+        async function fetchWallet() {
+          if (currentWallet) {
+            renderWallet();
+          }
+
+          try {
+            const response = await fetch(Serviio.apiUrl("/api/wallet/me"), {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            });
+            const result = await parseJsonResponse(response);
+            if (response.ok && result.success) {
+              currentWallet = result.data;
+              renderWallet();
+            } else {
+              throw new Error(result.message || "Unable to fetch wallet");
+            }
+          } catch (error) {
+            console.error(error);
+            displayEmptyState(
+              walletContainer,
+              "Unable to load wallet. Please try again later.",
+            );
+          }
+        }
+
+        async function fetchVerification() {
+          if (currentVerification) {
+            renderVerification();
+          }
+
+          try {
+            const response = await fetch(
+              Serviio.apiUrl("/api/providers/me/verification"),
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              },
+            );
+            const result = await parseJsonResponse(response);
+            if (response.ok && result.success) {
+              currentVerification = result.data;
+              renderVerification();
+            } else {
+              throw new Error(
+                result.message || "Unable to fetch verification status",
+              );
+            }
+          } catch (error) {
+            console.error(error);
+            displayEmptyState(
+              verificationContainer,
+              "Unable to load verification status. Please try again later.",
+            );
+          }
+        }
+
+        async function fetchNotifications() {
+          try {
+            const response = await fetch(
+              Serviio.apiUrl("/api/notifications"),
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              },
+            );
+            const result = await parseJsonResponse(response);
+            if (response.ok && result.success) {
+              currentNotifications = result.data || [];
+              renderNotifications();
+            } else {
+              throw new Error(result.message || "Unable to fetch notifications");
+            }
+          } catch (error) {
+            console.error(error);
+            displayEmptyState(
+              notificationsContainer,
+              "Unable to load notifications. Please try again later.",
+            );
+          }
+        }
+
+        function displayEmptyState(container, message) {
+          container.innerHTML = `<div class="section-empty">${escapeHtml(message)}</div>`;
+        }
+
+        function renderActiveJobs() {
+          const activeJobs = currentBookings.filter((job) =>
+            [
+              "PENDING",
+              "ACCEPTED",
+              "ON_THE_WAY",
+              "ARRIVED",
+              "IN_PROGRESS",
+            ].includes(job.status),
+          );
+          if (activeJobs.length === 0) {
+            displayEmptyState(
+              activeJobsContainer,
+              "You have no active jobs right now.",
+            );
+            return;
+          }
+          activeJobsContainer.innerHTML = activeJobs
+            .map(renderBookingCard)
+            .join("");
+        }
+
+        function renderHistory() {
+          const historyJobs = currentBookings.filter((job) =>
+            ["COMPLETED", "CANCELLED"].includes(job.status),
+          );
+          if (historyJobs.length === 0) {
+            displayEmptyState(
+              historyContainer,
+              "No completed or cancelled jobs yet.",
+            );
+            return;
+          }
+          historyContainer.innerHTML = historyJobs
+            .map((job) => {
+              const status = String(job.status || "UNKNOWN").toUpperCase();
+              return `
+                <div class="booking-card">
+                  <div class="job-header">
+                    <h4>${escapeHtml(job.service_type || "Service")}</h4>
+                    <span class="status ${statusClass(status)}">${escapeHtml(status)}</span>
+                  </div>
+                  <div class="job-details">
+                    <p><i class="fas fa-user"></i> <strong>Customer:</strong> ${escapeHtml(job.customer_name || "Customer")}</p>
+                    <p><i class="fas fa-map-marker-alt"></i> <strong>Location:</strong> ${escapeHtml(job.job_location || "N/A")}</p>
+                    <p><i class="fas fa-calendar-alt"></i> <strong>Date:</strong> ${escapeHtml(formatDisplayDate(job.booking_date))}</p>
+                    <p><i class="fas fa-phone"></i> <strong>Phone:</strong> ${escapeHtml(job.customer_phone || "N/A")}</p>
+                    <p><i class="fas fa-tag"></i> <strong>Price:</strong> ${escapeHtml(job.estimated_price_range || "N/A")}</p>
+                  </div>
+                </div>
+              `;
+            })
+            .join("");
+        }
+
+        function renderBookingCard(job) {
+          const status = String(job.status || "").toUpperCase();
+          const jobId = String(job.id ?? "");
+          const safeJobId = escapeHtml(jobId);
+          const jobIdArg = escapeJsArg(jobId);
+          let actionRegion = "";
+
+          if (status === "PENDING") {
+            actionRegion = `
+                <div class="handshake-section">
+                  <p class="verify-msg" id="msg-${safeJobId}">New request. Accept it when you are ready to serve this customer.</p>
+                  <div class="code-inputs">
+                    <button class="btn-verify" onclick="updateStatus(${jobIdArg}, 'ACCEPTED')">Accept Job</button>
+                    <button class="btn-verify" style="background:#b3261e" onclick="updateStatus(${jobIdArg}, 'CANCELLED')">Decline</button>
+                  </div>
+                </div>
+              `;
+          } else if (status === "ACCEPTED") {
+            actionRegion = `
+                <div class="handshake-section">
+                  <p class="verify-msg" id="msg-${safeJobId}">Booking accepted. Start travelling when you are ready.</p>
+                  <div class="code-inputs">
+                    <button class="btn-verify" onclick="updateStatus(${jobIdArg}, 'ON_THE_WAY')">On The Way</button>
+                    <button class="btn-verify" style="background:#b3261e" onclick="updateStatus(${jobIdArg}, 'CANCELLED')">Cancel Job</button>
+                  </div>
+                </div>
+              `;
+          } else if (status === "ON_THE_WAY") {
+            actionRegion = `
+                <div class="handshake-section">
+                  <p class="verify-msg" id="msg-${safeJobId}">You are travelling to the customer.</p>
+                  <div class="code-inputs">
+                    <button class="btn-verify" onclick="updateStatus(${jobIdArg}, 'ARRIVED')">Mark Arrived</button>
+                    <button class="btn-verify" style="background:#b3261e" onclick="updateStatus(${jobIdArg}, 'CANCELLED')">Cancel Job</button>
+                  </div>
+                </div>
+              `;
+          } else if (status === "ARRIVED") {
+            actionRegion = `
+                <div class="handshake-section">
+                  <label>Enter Customer's 4-Digit Handshake Code:</label>
+                  <div class="code-inputs">
+                    <input type="text" maxlength="4" class="handshake-input" id="code-${safeJobId}" aria-label="Customer handshake code" placeholder="----" autocomplete="one-time-code" inputmode="numeric" />
+                    <button class="btn-verify" onclick="verifyHandshake(${jobIdArg})">Verify & Start</button>
+                    <button class="btn-verify" style="background:#b3261e" onclick="updateStatus(${jobIdArg}, 'CANCELLED')">Cancel Job</button>
+                  </div>
+                  <p class="verify-msg" id="msg-${safeJobId}"></p>
+                </div>
+              `;
+          } else if (status === "IN_PROGRESS") {
+            actionRegion = `
+                <div class="handshake-section">
+                  <p class="verify-msg" id="msg-${safeJobId}">Job is active. Update its status when work is complete.</p>
+                  <div class="code-inputs">
+                    <button class="btn-verify" onclick="updateStatus(${jobIdArg}, 'COMPLETED')">Mark Completed</button>
+                    <button class="btn-verify" style="background:#b3261e" onclick="updateStatus(${jobIdArg}, 'CANCELLED')">Cancel Job</button>
+                  </div>
+                </div>
+              `;
+          } else if (status === "COMPLETED") {
+            actionRegion = `
+                <div class="job-completed-msg">
+                  <i class="fas fa-check-circle"></i> Job Completed
+                </div>
+              `;
+          } else {
+            actionRegion = `
+                <div class="job-completed-msg">
+                  <i class="fas fa-ban"></i> Job Cancelled
+                </div>
+              `;
+          }
+
+          return `
+            <div class="booking-card" data-id="${safeJobId}">
+              <div class="job-header">
+                <h4>${escapeHtml(job.service_type || "Service")}</h4>
+                <span class="status ${statusClass(status)}">${escapeHtml(status || "UNKNOWN")}</span>
+              </div>
+              <div class="job-details">
+                <p><i class="fas fa-user"></i> <strong>Customer:</strong> ${escapeHtml(job.customer_name || "Customer")}</p>
+                <p><i class="fas fa-map-marker-alt"></i> <strong>Location:</strong> ${escapeHtml(job.job_location || "N/A")}</p>
+                <p><i class="fas fa-calendar-alt"></i> <strong>Date:</strong> ${escapeHtml(formatDisplayDate(job.booking_date))}</p>
+                <p><i class="fas fa-phone"></i> <strong>Phone:</strong> ${escapeHtml(job.customer_phone || "N/A")}</p>
+                <p><i class="fas fa-tag"></i> <strong>Price:</strong> ${escapeHtml(job.estimated_price_range || "N/A")}</p>
+                <p><i class="fas fa-money-check-alt"></i> <strong>Payment:</strong> ${escapeHtml(job.payment_status || "UNPAID")}</p>
+              </div>
+              ${actionRegion}
+            </div>
+          `;
+        }
+
+        function renderReviews() {
+          if (!currentReviews || currentReviews.length === 0) {
+            displayEmptyState(
+              reviewsContainer,
+              "You do not have reviews yet. Complete jobs to collect feedback.",
+            );
+            return;
+          }
+
+          reviewsContainer.innerHTML = currentReviews
+            .map((review) => {
+              const stars = Array.from(
+                { length: 5 },
+                (_, index) =>
+                  `<span>${index < review.rating ? "&#9733;" : "&#9734;"}</span>`,
+              ).join("");
+              return `
+                <div class="review-card">
+                  <h4>${escapeHtml(review.title || "Customer Review")}</h4>
+                  <div class="review-meta">
+                    <span>${escapeHtml(review.customer_name || "Customer")}</span>
+                    <span class="rating-stars">${stars}</span>
+                  </div>
+                  <p class="review-comment">${escapeHtml(review.comment || "No comment provided.")}</p>
+                  <span class="review-date">${escapeHtml(formatDisplayDate(review.created_at, "N/A", false))}</span>
+                </div>
+              `;
+            })
+            .join("");
+        }
+
+        function renderMessageBookingOptions() {
+          if (!messageBookingSelect) return;
+          const selected = messageBookingSelect.value;
+          const bookings = (currentBookings || []).filter((job) =>
+            ["PENDING", "ACCEPTED", "ON_THE_WAY", "ARRIVED", "IN_PROGRESS", "COMPLETED"].includes(job.status),
+          );
+          messageBookingSelect.innerHTML = bookings.length
+            ? bookings
+                .map((job) => {
+                  const label = `#${job.id} - ${job.service_type || "Service"} with ${job.customer_name || "Customer"}`;
+                  return `<option value="${escapeHtml(job.id)}">${escapeHtml(label)}</option>`;
+                })
+                .join("")
+            : '<option value="">No messageable bookings</option>';
+          if (selected && bookings.some((job) => String(job.id) === selected)) {
+            messageBookingSelect.value = selected;
+          }
+        }
+
+        function renderBookingMessages(messages) {
+          if (!messages || messages.length === 0) {
+            bookingMessageList.innerHTML =
+              '<div class="section-empty">No messages yet.</div>';
+            return;
+          }
+
+          bookingMessageList.innerHTML = messages
+            .map((message) => {
+              const own = String(message.sender_id) === String(currentUser.id);
+              return `
+                <div class="message-bubble ${own ? "own" : ""}">
+                  <strong>${escapeHtml(message.sender_name || "User")}</strong>
+                  <p>${escapeHtml(message.message || "")}</p>
+                  <small>${escapeHtml(formatDisplayDate(message.created_at))}</small>
+                </div>
+              `;
+            })
+            .join("");
+        }
+
+        async function loadBookingMessages() {
+          const bookingId = messageBookingSelect?.value;
+          if (!bookingId) {
+            bookingMessageList.innerHTML =
+              '<div class="section-empty">Select a booking to load messages.</div>';
+            return;
+          }
+
+          bookingMessageStatus.textContent = "";
+          try {
+            const response = await fetch(
+              Serviio.apiUrl(`/api/communications/bookings/${bookingId}/messages`),
+              {
+                headers: { Authorization: `Bearer ${token}` },
+              },
+            );
+            const result = await parseJsonResponse(response);
+            if (!response.ok || !result.success) {
+              throw new Error(result.message || "Unable to load messages.");
+            }
+            renderBookingMessages(result.data || []);
+            if (bookingSocket) {
+              bookingSocket.emit("booking:join", { bookingId, token });
+            }
+          } catch (error) {
+            bookingMessageList.innerHTML = `<div class="section-empty">${escapeHtml(error.message)}</div>`;
+          }
+        }
+
+        async function sendBookingMessage(event) {
+          event.preventDefault();
+          const bookingId = messageBookingSelect.value;
+          const message = bookingMessageText.value.trim();
+          if (!bookingId || !message) return;
+
+          bookingMessageStatus.textContent = "Sending...";
+          bookingMessageStatus.style.color = "#334155";
+          try {
+            const response = await fetch(
+              Serviio.apiUrl(`/api/communications/bookings/${bookingId}/messages`),
+              {
+                method: "POST",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ message }),
+              },
+            );
+            const result = await parseJsonResponse(response);
+            if (!response.ok || !result.success) {
+              throw new Error(result.message || "Unable to send message.");
+            }
+            bookingMessageText.value = "";
+            bookingMessageStatus.textContent = "Message sent.";
+            bookingMessageStatus.style.color = "#16a34a";
+            await loadBookingMessages();
+          } catch (error) {
+            bookingMessageStatus.textContent = error.message;
+            bookingMessageStatus.style.color = "#b91c1c";
+          }
+        }
+
+        async function requestVoiceCall() {
+          const bookingId = messageBookingSelect.value;
+          if (!bookingId) return;
+          bookingMessageStatus.textContent = "Requesting call...";
+          bookingMessageStatus.style.color = "#334155";
+          try {
+            const response = await fetch(
+              Serviio.apiUrl(`/api/communications/bookings/${bookingId}/call-requests`),
+              {
+                method: "POST",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  call_type: "VOICE",
+                  reason: "Provider requested a booking coordination call.",
+                }),
+              },
+            );
+            const result = await parseJsonResponse(response);
+            if (!response.ok || !result.success) {
+              throw new Error(result.message || "Unable to request call.");
+            }
+            bookingMessageStatus.textContent = "Call request sent.";
+            bookingMessageStatus.style.color = "#16a34a";
+          } catch (error) {
+            bookingMessageStatus.textContent = error.message;
+            bookingMessageStatus.style.color = "#b91c1c";
+          }
+        }
+
+        function formatMoney(amount, currency = "BDT") {
+          const value = Number(amount || 0).toFixed(2);
+          return `${String(currency || "BDT").toUpperCase()} ${value}`;
+        }
+
+        function renderWallet() {
+          if (!currentWallet || !currentWallet.wallet) {
+            displayEmptyState(walletContainer, "No wallet data available yet.");
+            return;
+          }
+
+          const wallet = currentWallet.wallet;
+          const escrows = currentWallet.escrows || [];
+          const transactions = currentWallet.transactions || [];
+          const payouts = currentWallet.payouts || [];
+          const heldEscrows = escrows.filter((escrow) => escrow.status === "HELD");
+
+          walletContainer.innerHTML = `
+            <div class="booking-card">
+              <div class="job-header">
+                <h4>Available Balance</h4>
+                <span class="status completed">${escapeHtml(formatMoney(wallet.balance, wallet.currency))}</span>
+              </div>
+              <div class="job-details">
+                <p><i class="fas fa-hourglass-half"></i> <strong>Pending Escrow:</strong> ${escapeHtml(formatMoney(wallet.pending_balance, wallet.currency))}</p>
+                <p><i class="fas fa-money-bill-transfer"></i> <strong>Payout Reserved:</strong> ${escapeHtml(formatMoney(wallet.payout_reserved_balance, wallet.currency))}</p>
+                <p><i class="fas fa-lock"></i> <strong>Held Jobs:</strong> ${heldEscrows.length}</p>
+              </div>
+            </div>
+            <div class="booking-card">
+              <div class="job-header">
+                <h4>Request Payout</h4>
+                <span class="status pending">Min BDT 100</span>
+              </div>
+              <form id="payoutRequestForm" class="profile-settings-form" style="margin-top:12px">
+                <div class="form-grid">
+                  <label>
+                    Amount
+                    <input type="number" id="payoutAmount" min="100" step="10" max="${Number(wallet.balance || 0)}" required />
+                  </label>
+                  <label>
+                    Method
+                    <select id="payoutMethod" required>
+                      <option value="BKASH">bKash</option>
+                      <option value="NAGAD">Nagad</option>
+                      <option value="BANK">Bank</option>
+                    </select>
+                  </label>
+                  <label>
+                    Account / Wallet Number
+                    <input type="text" id="payoutAccountRef" maxlength="255" required />
+                  </label>
+                  <label>
+                    Notes
+                    <input type="text" id="payoutNotes" maxlength="1000" />
+                  </label>
+                </div>
+                <button type="submit" class="btn-verify">
+                  <i class="fas fa-paper-plane"></i>
+                  Submit payout request
+                </button>
+              </form>
+            </div>
+            <div class="booking-card">
+              <div class="job-header">
+                <h4>Recent Escrow</h4>
+              </div>
+              <div class="job-details">
+                ${
+                  escrows.length
+                    ? escrows
+                        .slice(0, 5)
+                        .map(
+                          (escrow) => {
+                            const bookingId = String(escrow.booking_id ?? "");
+                            const bookingIdArg = escapeJsArg(bookingId);
+                            const escrowStatus = String(escrow.status || "UNKNOWN").toUpperCase();
+                            return `
+                            <p>
+                              <i class="fas fa-receipt"></i>
+                              <strong>Booking #${escapeHtml(bookingId)}:</strong>
+                              ${escapeHtml(formatMoney(escrow.provider_amount, wallet.currency))}
+                              <span class="status ${statusClass(escrowStatus)}">${escapeHtml(escrowStatus)}</span>
+                              ${
+                                escrow.status === "HELD"
+                                  ? `<button class="btn-verify" style="margin-left:8px;padding:6px 10px" onclick="releaseEscrow(${bookingIdArg})">Release</button>`
+                                  : ""
+                              }
+                            </p>
+                          `;
+                          },
+                        )
+                        .join("")
+                    : "<p>No escrow records yet.</p>"
+                }
+              </div>
+            </div>
+            <div class="booking-card">
+              <div class="job-header">
+                <h4>Payout Requests</h4>
+              </div>
+              <div class="job-details">
+                ${
+                  payouts.length
+                    ? payouts
+                        .slice(0, 5)
+                        .map(
+                          (payout) => {
+                            const payoutStatus = String(payout.status || "UNKNOWN").toUpperCase();
+                            return `
+                            <p>
+                              <i class="fas fa-money-bill-transfer"></i>
+                              <strong>${escapeHtml(payout.payout_method || "PAYOUT")}:</strong>
+                              ${escapeHtml(formatMoney(payout.amount, payout.currency || wallet.currency))}
+                              <span class="status ${statusClass(payoutStatus)}">${escapeHtml(payoutStatus)}</span>
+                            </p>
+                          `;
+                          },
+                        )
+                        .join("")
+                    : "<p>No payout requests yet.</p>"
+                }
+              </div>
+            </div>
+            <div class="booking-card">
+              <div class="job-header">
+                <h4>Wallet Ledger</h4>
+              </div>
+              <div class="job-details">
+                ${
+                  transactions.length
+                    ? transactions
+                        .slice(0, 5)
+                        .map(
+                          (tx) => `
+                            <p>
+                              <i class="fas fa-wallet"></i>
+                              <strong>${escapeHtml(tx.type || "TRANSACTION")}:</strong>
+                              ${escapeHtml(formatMoney(tx.amount, wallet.currency))}
+                              ${tx.booking_id ? `for booking #${escapeHtml(tx.booking_id)}` : ""}
+                            </p>
+                          `,
+                        )
+                        .join("")
+                    : "<p>No wallet transactions yet.</p>"
+                }
+              </div>
+            </div>
+          `;
+
+          const payoutForm = document.getElementById("payoutRequestForm");
+          if (payoutForm) {
+            payoutForm.addEventListener("submit", submitPayoutRequest);
+          }
+        }
+
+        async function submitPayoutRequest(event) {
+          event.preventDefault();
+          const amount = Number(document.getElementById("payoutAmount").value);
+          const payout_method = document.getElementById("payoutMethod").value;
+          const account_ref = document.getElementById("payoutAccountRef").value.trim();
+          const provider_notes = document.getElementById("payoutNotes").value.trim();
+
+          if (!Number.isFinite(amount) || amount < 100) {
+            Serviio.notify("Enter a payout amount of at least BDT 100.", "error");
+            return;
+          }
+
+          try {
+            const response = await fetch(Serviio.apiUrl("/api/wallet/payout-requests"), {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                amount,
+                payout_method,
+                account_ref,
+                provider_notes,
+              }),
+            });
+            const result = await parseJsonResponse(response);
+            if (!response.ok || !result.success) {
+              throw new Error(result.message || "Unable to request payout.");
+            }
+            currentWallet = null;
+            await fetchWallet();
+            Serviio.notify("Payout request submitted for operations review.", "success");
+          } catch (error) {
+            console.error(error);
+            Serviio.notify(error.message || "Unable to request payout right now.", "error");
+          }
+        }
+
+        window.releaseEscrow = async (bookingId) => {
+          if (!bookingId) return;
+
+          try {
+            const response = await fetch(
+              Serviio.apiUrl(`/api/wallet/escrow/${bookingId}/release`),
+              {
+                method: "POST",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              },
+            );
+            const result = await parseJsonResponse(response);
+            if (!response.ok || !result.success) {
+              throw new Error(result.message || "Unable to release escrow.");
+            }
+            currentWallet = null;
+            await fetchWallet();
+            Serviio.notify(
+              "Escrow released to your available wallet balance.",
+              "success",
+            );
+          } catch (error) {
+            console.error(error);
+            Serviio.notify(
+              error.message || "Unable to release escrow right now.",
+              "error",
+            );
+          }
+        };
+
+        function renderVerification() {
+          if (!currentVerification || !currentVerification.profile) {
+            displayEmptyState(
+              verificationContainer,
+              "No verification data available yet.",
+            );
+            return;
+          }
+
+          const profile = currentVerification.profile;
+          const documents = currentVerification.documents || [];
+          const auditLogs = currentVerification.audit_logs || [];
+
+          verificationContainer.innerHTML = `
+            <div class="booking-card">
+              <div class="job-header">
+                <h4>Verification Status</h4>
+                <span class="status ${statusClass(profile.verification_status)}">${escapeHtml(profile.verification_status || "PENDING")}</span>
+              </div>
+              <div class="job-details">
+                <p><i class="fas fa-id-card"></i> <strong>NID:</strong> ${escapeHtml(profile.nid_number || "Not provided")}</p>
+                <p><i class="fas fa-certificate"></i> <strong>Verified:</strong> ${profile.is_verified ? "Yes" : "No"}</p>
+                <p><i class="fas fa-note-sticky"></i> <strong>Admin Notes:</strong> ${escapeHtml(profile.verification_notes || "None")}</p>
+              </div>
+            </div>
+            <div class="booking-card">
+              <div class="job-header">
+                <h4>Documents</h4>
+              </div>
+              <div class="job-details">
+                ${
+                  documents.length
+                    ? documents
+                        .map(
+                          (doc) => {
+                            const docStatus = String(doc.status || "PENDING").toUpperCase();
+                            return `
+                            <p>
+                              <i class="fas fa-file-shield"></i>
+                              <strong>${escapeHtml(doc.document_type || "Document")}:</strong>
+                              ${escapeHtml(doc.file_name || doc.document_number || doc.document_url || "Submitted")}
+                              <span class="status ${statusClass(docStatus)}">${escapeHtml(docStatus)}</span>
+                            </p>
+                          `;
+                          },
+                        )
+                        .join("")
+                    : "<p>No verification documents submitted yet.</p>"
+                }
+              </div>
+            </div>
+            <div class="booking-card">
+              <div class="job-header">
+                <h4>Audit Trail</h4>
+              </div>
+              <div class="job-details">
+                ${
+                  auditLogs.length
+                    ? auditLogs
+                        .slice(0, 5)
+                        .map(
+                          (log) => `
+                            <p>
+                              <i class="fas fa-clock-rotate-left"></i>
+                              <strong>${escapeHtml(log.action || "Audit")}:</strong>
+                              ${escapeHtml(log.new_status || "")}
+                              ${log.notes ? `- ${escapeHtml(log.notes)}` : ""}
+                            </p>
+                          `,
+                        )
+                        .join("")
+                    : "<p>No audit events yet.</p>"
+                }
+              </div>
+            </div>
+          `;
+        }
+
+        async function submitVerificationDocument(event) {
+          event.preventDefault();
+          verificationMessage.textContent = "Submitting document...";
+          verificationMessage.style.color = "#334155";
+
+          try {
+            const fileInput = document.getElementById(
+              "verificationDocumentFile",
+            );
+            const documentFile = fileInput.files && fileInput.files[0];
+            const payload = new FormData();
+            payload.append(
+              "document_type",
+              document.getElementById("verificationDocumentType").value,
+            );
+            payload.append(
+              "document_number",
+              document
+                .getElementById("verificationDocumentNumber")
+                .value.trim(),
+            );
+            payload.append(
+              "document_url",
+              document.getElementById("verificationDocumentUrl").value.trim(),
+            );
+            payload.append(
+              "file_name",
+              document.getElementById("verificationFileName").value.trim(),
+            );
+            payload.append(
+              "notes",
+              document.getElementById("verificationNotes").value.trim(),
+            );
+            if (documentFile) {
+              payload.append("document_file", documentFile);
+            }
+
+            const response = await fetch(
+              Serviio.apiUrl("/api/providers/me/verification/documents"),
+              {
+                method: "POST",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+                body: payload,
+              },
+            );
+            const result = await parseJsonResponse(response);
+            if (!response.ok || !result.success) {
+              throw new Error(result.message || "Unable to submit document.");
+            }
+            verificationMessage.textContent = "Document submitted.";
+            verificationMessage.style.color = "#16a34a";
+            verificationDocumentForm.reset();
+            currentVerification = null;
+            await fetchVerification();
+          } catch (error) {
+            verificationMessage.textContent =
+              error.message || "Unable to submit document.";
+            verificationMessage.style.color = "#b91c1c";
+          }
+        }
+
+        async function submitVerificationForReview() {
+          verificationMessage.textContent = "Submitting for review...";
+          verificationMessage.style.color = "#334155";
+
+          try {
+            const response = await fetch(
+              Serviio.apiUrl("/api/providers/me/verification/submit"),
+              {
+                method: "POST",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              },
+            );
+            const result = await parseJsonResponse(response);
+            if (!response.ok || !result.success) {
+              throw new Error(result.message || "Unable to submit for review.");
+            }
+            verificationMessage.textContent = "Submitted for admin review.";
+            verificationMessage.style.color = "#16a34a";
+            currentVerification = null;
+            await fetchVerification();
+          } catch (error) {
+            verificationMessage.textContent =
+              error.message || "Unable to submit for review.";
+            verificationMessage.style.color = "#b91c1c";
+          }
+        }
+
+        function renderNotifications() {
+          if (!currentNotifications || currentNotifications.length === 0) {
+            displayEmptyState(
+              notificationsContainer,
+              "No notifications yet.",
+            );
+            return;
+          }
+
+          notificationsContainer.innerHTML = currentNotifications
+            .map(
+              (notification) => {
+                const title = notification.title || notification.notification_type || "Notification";
+                return `
+                <div class="booking-card">
+                  <div class="job-header">
+                    <h4>${escapeHtml(title)}</h4>
+                    <span class="status ${notification.is_read ? "completed" : "pending"}">${notification.is_read ? "READ" : "NEW"}</span>
+                  </div>
+                  <div class="job-details">
+                    <p>${escapeHtml(notification.message || "")}</p>
+                    <p><i class="fas fa-clock"></i> ${escapeHtml(formatDisplayDate(notification.created_at))}</p>
+                  </div>
+                </div>
+              `;
+              },
+            )
+            .join("");
+        }
+
+        async function markNotificationsRead() {
+          try {
+            const response = await fetch(
+              Serviio.apiUrl("/api/notifications/read-all"),
+              {
+                method: "PATCH",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              },
+            );
+            const result = await parseJsonResponse(response);
+            if (!response.ok || !result.success) {
+              throw new Error(result.message || "Unable to update notifications");
+            }
+            await fetchNotifications();
+          } catch (error) {
+            console.error(error);
+            Serviio.notify(
+              error.message || "Unable to update notifications.",
+              "error",
+            );
+          }
+        }
+
+        async function submitSettings(event) {
+          event.preventDefault();
+          settingsMessage.textContent = "Saving...";
+          settingsMessage.style.color = "#334155";
+
+          const payload = {
+            first_name: inputFirstName.value.trim(),
+            last_name: inputLastName.value.trim(),
+            email: inputEmail.value.trim(),
+            phone: inputPhone.value.trim(),
+            service_type: inputServiceType.value.trim(),
+            location: inputLocation.value.trim(),
+            experience_summary: inputExperience.value.trim(),
+            nid_number: inputNidNumber.value.trim(),
+          };
+
+          try {
+            const response = await fetch(
+              Serviio.apiUrl("/api/providers/me/settings"),
+              {
+                method: "PUT",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(payload),
+              },
+            );
+            const result = await parseJsonResponse(response);
+            if (response.ok && result.success) {
+              providerProfile = result.data;
+              populateSettingsForm();
+              providerName.textContent = `${providerProfile.first_name} ${providerProfile.last_name}`;
+              settingsMessage.textContent = "Settings updated successfully.";
+              settingsMessage.style.color = "#16a34a";
+              updateAvailabilityButton();
+            } else {
+              throw new Error(result.message || "Unable to save settings.");
+            }
+          } catch (error) {
+            console.error("Settings update failed", error);
+            settingsMessage.textContent =
+              error.message || "Unable to update settings.";
+            settingsMessage.style.color = "#b91c1c";
+          }
+        }
+
+        window.verifyHandshake = async (bookingId) => {
+          const codeInput = document.getElementById(`code-${bookingId}`).value;
+          const msgElement = document.getElementById(`msg-${bookingId}`);
+          if (codeInput.length !== 4) {
+            msgElement.textContent = "Please enter a valid 4-digit code.";
+            msgElement.style.color = "red";
+            return;
+          }
+          try {
+            const response = await fetch(
+              Serviio.apiUrl("/api/bookings/verify-handshake"),
+              {
+                method: "POST",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ bookingId, handshakeCode: codeInput }),
+              },
+            );
+            const data = await parseJsonResponse(response);
+            if (response.ok && data.success) {
+              msgElement.textContent =
+                "Code verified successfully! Job started.";
+              msgElement.style.color = "green";
+              setTimeout(fetchBookings, 1200);
+            } else {
+              msgElement.textContent =
+                data.message || "Invalid code. Try again.";
+              msgElement.style.color = "red";
+            }
+          } catch (error) {
+            msgElement.textContent = "Server error. Please try again.";
+            msgElement.style.color = "red";
+          }
+        };
+
+        window.updateStatus = async (bookingId, status) => {
+          const msgElement = document.getElementById(`msg-${bookingId}`);
+          try {
+            const response = await fetch(
+              Serviio.apiUrl(`/api/bookings/${bookingId}/status`),
+              {
+                method: "PATCH",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ status }),
+              },
+            );
+            const data = await parseJsonResponse(response);
+            if (response.ok && data.success) {
+              if (msgElement) {
+                msgElement.textContent = `Job marked as ${status.toLowerCase()}.`;
+                msgElement.style.color = "green";
+              }
+              setTimeout(fetchBookings, 1000);
+            } else if (msgElement) {
+              msgElement.textContent =
+                data.message || "Failed to update status.";
+              msgElement.style.color = "red";
+            }
+          } catch (error) {
+            if (msgElement) {
+              msgElement.textContent = "Server error. Please try again.";
+              msgElement.style.color = "red";
+            }
+          }
+        };
+
+        menuLinks.forEach((link) => {
+          link.addEventListener("click", (event) => {
+            event.preventDefault();
+            const tab = link.dataset.tab;
+            if (tab) setActivePanel(tab);
+          });
+        });
+
+        settingsForm.addEventListener("submit", submitSettings);
+        verificationDocumentForm.addEventListener(
+          "submit",
+          submitVerificationDocument,
+        );
+        messageBookingSelect.addEventListener("change", loadBookingMessages);
+        bookingMessageForm.addEventListener("submit", sendBookingMessage);
+        requestVoiceCallBtn.addEventListener("click", requestVoiceCall);
+        submitVerificationBtn.addEventListener(
+          "click",
+          submitVerificationForReview,
+        );
+        markNotificationsReadBtn.addEventListener(
+          "click",
+          markNotificationsRead,
+        );
+
+        await fetchProfile();
+        await fetchBookings();
+        await fetchReviews();
+        await fetchWallet();
+        await fetchVerification();
+        await fetchNotifications();
+        setActivePanel("active-jobs");
+
+        if (
+          !currentUser ||
+          (currentUser.role && currentUser.role.toLowerCase() !== "provider")
+        ) {
+          if (shareBtn) shareBtn.style.display = "none";
+          if (availabilityBtn) availabilityBtn.style.display = "none";
+        }
+
+        let watchId = null;
+        const socket = io(Serviio.apiBaseUrl, { auth: { token } });
+        bookingSocket = socket;
+        socket.on("booking:message:new", (message) => {
+          if (
+            activeTab === "messages" &&
+            String(message.booking_id) === String(messageBookingSelect.value)
+          ) {
+            loadBookingMessages();
+          }
+        });
+        socket.on("booking:call:requested", (callRequest) => {
+          if (
+            activeTab === "messages" &&
+            String(callRequest.booking_id) === String(messageBookingSelect.value)
+          ) {
+            bookingMessageStatus.textContent = "New call request received.";
+            bookingMessageStatus.style.color = "#0056b3";
+          }
+        });
+        socket.emit("notifications:join", { token });
+        socket.on("notification:new", (notification) => {
+          currentNotifications = [notification, ...(currentNotifications || [])];
+          if (activeTab === "notifications") {
+            renderNotifications();
+          }
+        });
+        socket.on("notifications:error", (payload) => {
+          console.warn(payload?.message || "Notification socket error");
+        });
+
+        if (availabilityBtn) {
+          availabilityBtn.addEventListener("click", toggleAvailability);
+        }
+
+        if (shareBtn) {
+          shareBtn.addEventListener("click", () => {
+            if (!navigator.geolocation) {
+              Serviio.notify(
+                "Geolocation not supported in this browser.",
+                "warning",
+              );
+              return;
+            }
+
+            const providerId = currentUser ? currentUser.id : null;
+            if (!providerId) {
+              Serviio.notify(
+                "Provider not found. Ensure you are logged in as provider.",
+                "error",
+              );
+              return;
+            }
+
+            if (watchId) {
+              navigator.geolocation.clearWatch(watchId);
+              watchId = null;
+              shareBtn.textContent = "Start Sharing Location";
+              return;
+            }
+
+            socket.emit("provider:join", { providerId, token });
+            watchId = navigator.geolocation.watchPosition(
+              (pos) => {
+                socket.emit("provider:location", {
+                  providerId,
+                  token,
+                  lat: pos.coords.latitude,
+                  lng: pos.coords.longitude,
+                });
+              },
+              (err) => {
+                console.error("Geolocation error", err);
+              },
+              { enableHighAccuracy: true, maximumAge: 2000 },
+            );
+
+            shareBtn.textContent = "Stop Sharing Location";
+          });
+        }
+
+        const logoutBtn = document.getElementById("logoutBtn");
+        if (logoutBtn) {
+          logoutBtn.addEventListener("click", (ev) => {
+            ev.preventDefault();
+            localStorage.removeItem("serviio_token");
+            localStorage.removeItem("serviio_user");
+            window.location.href = "login.html";
+          });
+        }
+      });
+    </script>
+  </body>
+</html>

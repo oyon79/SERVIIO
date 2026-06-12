@@ -1,0 +1,119 @@
+CHECKLIST (STRICT)
+
+Current status snapshot
+- Done: admin protection, parameterized DB writes, provider listing, booking creation + handshake, provider dashboard wiring, provider detail/schedule flow, emergency fallback logging, authenticated realtime sockets, booking-scoped messaging/call requests, registration OTP verification, forgot-password/reset-password flow, KYC document upload/review, escrow/refund/payout handling, and frontend polish pass.
+- In progress: production payment/KYC/SMS adapters have a strict live readiness gate; sandbox credential validation and human visual QA with production-like credentials remain. Latest passes hardened provider dashboard dynamic rendering, moved registration OTP expiry to DATETIME to avoid TIMESTAMP timezone drift, and removed hardcoded frontend backend URLs outside shared config.
+- To do: run `LIVE_READINESS_STRICT=true npm run readiness:live` with real SMTP/SMS/payment/KYC probe values and complete final human exploratory QA. Strict readiness now reports missing live providers/probes as failures.
+
+Instructions
+- Mark each line as [ ] pending, [~] in progress, [x] complete.
+- Do not skip order unless blocked.
+
+A. Repository Audit
+[x] Read all backend controllers/routes/middlewares/sockets
+[x] Read all frontend pages and JS/CSS dependencies
+[x] Produce list of broken links/buttons and dead actions
+[x] Produce list of schema mismatches and migration needs
+[x] Produce API contract map (request/response/auth)
+
+B. Database and Migrations
+[x] Add migration framework (up/down) -- forward runner plus guarded backup/restore rollback workflow
+[x] Add migration to normalize provider_profiles.is_verified
+[x] Add verification-related tables (documents, audit logs, statuses)
+[x] Add indexes/constraints for performance and integrity
+[x] Validate migrations on clean and existing DBs
+[x] Store registration OTP expiry as DATETIME to avoid TIMESTAMP timezone conversion drift
+
+C. Authentication and Authorization
+[x] Validate register/login payloads with schema validation (basic checks present; add formal schema validation)
+[x] Enforce ownership checks on booking create/verify/status updates
+[x] Harden JWT handling and auth error responses (improvements applied; review session edge cases)
+[x] Add rate limit and brute-force protection
+[x] Ensure admin/staff endpoints are fully protected with tiered RBAC
+[x] Add registration OTP verification for production account onboarding
+[x] Normalize admin-equivalent controller access through shared role helpers
+
+D. Verification Pipeline (Real-world)
+[x] Implement real NID verification integration point -- generic HTTP adapter supports configurable provider response mapping
+[x] Add provider document upload API (secure validation)
+[x] Implement police verification workflow -- generic HTTP adapter supports configurable provider response mapping
+[x] Implement skill/certification verification workflow -- generic HTTP adapter supports configurable provider response mapping
+[x] Store audit logs with reviewer and timestamps
+[x] Add verification state machine and admin review actions (design started; controller hooks created)
+
+E. Booking Lifecycle
+[x] Ensure create booking validates provider/customer existence
+[x] Ensure handshake verify only for assigned provider
+[x] Support full booking statuses (pending, accepted, on_the_way, arrived, in_progress, completed, cancelled)
+[x] Add cancellation and completion endpoints with permissions
+[x] Add consistent booking history endpoints for both roles
+
+F. Realtime Tracking + Emergency
+[x] Add socket authentication using JWT
+[x] Validate location payloads (lat/lng bounds)
+[x] Persist last known provider location
+[x] Add admin visibility for emergency logs/incidents
+[x] Implement emergency escalation path and fallback reliability
+[x] Add admin visibility for emergency logs/incidents
+
+F2. Booking Communication
+[x] Add booking-scoped message persistence
+[x] Add participant-only message APIs
+[x] Add booking call request APIs and statuses
+[x] Emit message/call notifications and booking-room socket events
+[x] Add customer/provider frontend controls for messages and call requests
+
+G. Frontend Completion
+[x] Replace sample providers on home map with real providers API
+[x] Make provider details page dynamic by provider id
+[x] Fix schedule page to submit real service/date/time/location values
+[x] Improve payment flow (real status handling or robust stub)
+[x] Finalize provider dashboard with correct booking fields
+[x] Add provider payout request flow and admin financial review controls
+[x] Validate platform commission rate before payment/escrow calculations
+[x] Upgrade admin page with search/filter/pagination/review details
+[x] Ensure role-based UI visibility and route guards across pages
+[x] Add forgot-password / reset-password / registration verification frontend pages and scripts (created and wired)
+[x] Route frontend API/socket calls through shared deploy-safe API config
+[x] Remove ad-hoc debug/destructive backend scripts from release artifacts
+[x] Gate noisy realtime debug logs behind explicit env flags
+[x] Make strict live readiness fail missing SMTP/SMS/payment/KYC probes explicitly
+[x] Make legacy PowerShell E2E script target configurable backends/payment modes
+
+H. UI/UX Quality
+[x] Remove all dead UI controls and placeholder links
+[x] Add loading/empty/error states on all API screens -- API-facing pages show loading/empty/error feedback and frontend QA checks regressions
+[x] Ensure responsive behavior for mobile and desktop
+[x] Improve accessibility (labels, focus, semantics)
+[x] Keep visual consistency across pages
+
+I. Security Hardening
+[x] Add Helmet and strict CORS by environment (helmet/cors integrated)
+[x] Add centralized safe error middleware (global handler present)
+[x] Add graceful shutdown for HTTP, Socket.IO, and MySQL pool lifecycle
+[x] Ensure all DB writes are parameterized
+[x] Validate upload types/sizes/content signatures and sanitize filenames
+[x] Escape user-generated provider dashboard content and enforce frontend QA regression checks
+[x] Sanitize dynamic admin status/toast class tokens and enforce frontend QA regression checks
+[x] Ensure secrets are env-only and not hardcoded (remove duplicate .env entries; secure credentials)
+
+J. Testing and CI
+[x] Add unit tests for auth, booking, verification logic
+[x] Add integration tests for all critical APIs -- includes route gate tests, throwaway-DB auth/booking/payment/escrow/review flow, realtime socket auth/location tests, and seeded smoke coverage for messaging/support/SOS/KYC/admin/payouts
+[x] Add e2e smoke tests for customer/provider/admin flows
+[x] Add seed fixtures for deterministic test runs
+[x] Add test commands to package scripts and docs
+
+K. Documentation and Handover
+[x] Update README with setup, env vars, migrations, run/test steps
+[x] Document API endpoints and auth requirements
+[x] Document verification workflows and admin operations
+[x] Provide deployment and rollback notes
+[x] Provide final known-limitations section (if any)
+
+L. Final Acceptance
+[~] No critical bugs in manual QA -- automated API/frontend/headless Chrome smoke passes; human exploratory QA with live credentials still pending
+[x] All core journeys pass
+[x] No broken navigation or dead buttons -- automated frontend QA now checks local links, dead hashes, native dialogs, deploy-safe API config order, and detectable button actions
+[x] Schema and migrations verified
+[x] Security checks and tests pass

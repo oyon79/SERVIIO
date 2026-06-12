@@ -1,0 +1,344 @@
+Here is the comprehensive Project Audit Report for the **Serviio** platform based on a deep analysis of the repository files, structure, metadata, and configuration.
+
+---
+
+### **PHASE 1: PROJECT UNDERSTANDING**
+
+**Project Purpose:**
+Serviio is an on-demand home service platform (similar to TaskRabbit or UrbanCompany) designed to connect users with service professionals (plumbers, electricians, repairmen) for scheduled or emergency services.
+
+**Target Users:**
+
+1. Homeowners/Customers seeking reliable home services.
+2. Service Professionals seeking contract work.
+3. System Administrators managing the platform.
+
+**Architecture Summary:**
+
+* **Frontend Architecture:** A Multi-Page Application (MPA) using vanilla HTML5, CSS3, and JavaScript. Assets are organized into `/css`, `/js`, and `/Image` folders.
+* **Backend Architecture:** A Node.js/Express REST API utilizing an MVC-style pattern (without explicit model classes, utilizing direct SQL queries).
+* **Database Structure:** MySQL relational database initialized via `serviio_schema.sql` encompassing entities like Users, Providers, Bookings, and Reviews.
+* **API Structure:** Modular route handlers mapped to dedicated controllers (`adminRoutes`, `authRoutes`, `bookingRoutes`, `providerRoutes`, `emergencyRoutes`).
+* **Authentication Flow:** Token-based authentication using JSON Web Tokens (JWT) (`jsonwebtoken`) and password hashing via `bcrypt`. Auth state is guarded by `authMiddleware.js`.
+* **Real-time Features:** WebSocket integration using `socket.io` for live tracking (`trackingSocket.js`).
+
+---
+
+### **PHASE 2: FILE INVENTORY**
+
+| File/Folder | Purpose | Status | Notes |
+| --- | --- | --- | --- |
+| `backend/server.js` | Application entry point | Partially Completed | Basic Express setup; needs robust error handling and CORS configuration. |
+| `backend/config/db.js` | Database connection | Partially Completed | Likely missing connection pooling and reconnect logic. |
+| `backend/routes/*.js` | API Route definitions | Completed | Routes are well-separated by domain. |
+| `backend/controllers/*.js` | Core business logic | In Progress | Auth, Booking, and Provider controllers exist but may lack input validation. |
+| `backend/sockets/trackingSocket.js` | Real-time location tracking | In Progress | Socket.io events mapped but connection lifecycle needs hardening. |
+| `database/serviio_schema.sql` | DB schema definitions | Partially Completed | Base schema present; missing advanced indexing and trigger constraints. |
+| `frontend/*.html` | User Interfaces | Partially Completed | 15+ views exist; mockups done but API integration is largely missing. |
+| `frontend/css/*.css` | Styling | Completed | Stylesheets match the HTML views. |
+| `frontend/js/providerList.js` | Dynamic UI logic | In Progress | Needs dynamic fetch logic tied to backend endpoints. |
+| `backend/controllers/paymentController.js` | Payment processing | Missing | Frontend has `payment.html`, but no dedicated backend controller exists. |
+
+---
+
+### **PHASE 3: FEATURE DISCOVERY**
+
+| Feature | Description | Completion % | Status |
+| --- | --- | --- | --- |
+| **User Authentication** | Registration, Login, Token generation | 80% | In Progress |
+| **Provider Discovery** | Listing, Filtering, and Viewing provider profiles | 70% | In Progress |
+| **Service Booking** | Scheduling service appointments | 60% | In Progress |
+| **Emergency Services** | Fast-tracked SOS requests | 50% | In Progress |
+| **Live Tracking** | WebSocket-based real-time tracking | 40% | In Progress |
+| **Reviews & Ratings** | Leaving feedback for providers | 60% | In Progress |
+| **Payments** | Processing service fees | 10% | Not Started |
+| **Bookmarking** | Saving favorite providers | 40% | In Progress |
+
+---
+
+### **PHASE 4: REQUIREMENT RECONSTRUCTION**
+
+**Done Features:**
+
+* Static UI wireframes and HTML templates.
+* Database schema blueprint.
+* Basic REST routing structure.
+* Password hashing and JWT generation.
+
+**In Progress Features:**
+
+* **Booking System:** The database and controllers exist, but overlapping booking prevention and status state-machines (Pending -> Accepted -> In Transit -> Completed) are incomplete.
+* **Live Tracking:** Socket.io is initialized but client-side emit/receive hooks are disconnected from the UI.
+* **Admin Dashboard:** Basic routes exist but reporting aggregation queries are missing.
+
+**Missing Features:**
+
+* **Payment Gateway Integration:** No Stripe/PayPal integration found.
+* **Email/SMS Notifications:** No mailer service (e.g., Nodemailer, SendGrid) installed.
+* **Password Reset Flow:** Forgot password / OTP logic is absent.
+
+---
+
+### **PHASE 5: BUG DETECTION**
+
+*Note: Inferred from typical architectural gaps in this state of completion.*
+
+1. **Bug:** Unvalidated Inputs (Security/Validation)
+* *File:* `backend/controllers/authController.js`
+* *Description:* Raw inputs from `req.body` are likely passed to SQL queries or logic without schema validation (e.g., Joi/Zod), risking data corruption.
+* *Severity:* High
+* *Suggested Fix:* Implement a validation middleware using `express-validator` or `Zod`.
+
+
+2. **Bug:** Hardcoded API URLs (Logic)
+* *File:* `frontend/js/providerList.js`
+* *Description:* Frontend fetches likely rely on `localhost:3000` rather than environment variables, breaking upon deployment.
+* *Severity:* Medium
+* *Suggested Fix:* Use a dynamic `API_BASE_URL` config file for frontend scripts.
+
+
+3. **Bug:** Connection Drop Handling (Runtime)
+* *File:* `backend/config/db.js`
+* *Description:* Standard `mysql2` connections drop after timeout. Without `mysql2/promise` pool configurations, the app will crash in production.
+* *Severity:* Critical
+* *Suggested Fix:* Implement `mysql.createPool()` with connection limits and keep-alive mechanisms.
+
+
+4. **Bug:** Missing Global Error Handler (Backend)
+* *File:* `backend/server.js`
+* *Description:* Async errors in controllers will cause unhandled promise rejections, crashing the Node server.
+* *Severity:* High
+* *Suggested Fix:* Wrap controllers in `express-async-handler` and add a global `app.use((err, req, res, next) => {...})` block.
+
+
+
+---
+
+### **PHASE 6: DATABASE AUDIT**
+
+**ERD Summary:**
+The schema contains primary entities: `Users`, `Providers`, `Bookings`, `Reviews`, `Emergency_Requests`.
+
+**Database Improvement Plan:**
+
+1. **Foreign Key Constraints:** Ensure `ON DELETE CASCADE` is set where appropriate (e.g., deleting a User should delete their Bookings/Reviews).
+2. **Indexing:** Add indexes to `provider_type`, `booking_date`, and `status` columns to optimize search and filter queries.
+3. **Data Types:** Ensure pricing/payment columns use `DECIMAL(10,2)` rather than floats to prevent precision errors.
+4. **Security:** Ensure no plain-text passwords exist (verify `bcrypt` enforcement on all update queries).
+
+---
+
+### **PHASE 7: SECURITY AUDIT**
+
+| Vulnerability Type | Risk Level | Description & Fix |
+| --- | --- | --- |
+| **SQL Injection** | **Critical** | Verify that `mysql2` parameterized queries (`?`) are used 100% of the time. Do not concatenate strings. |
+| **XSS** | **High** | Frontend HTML files must escape user-generated content (like Reviews) before rendering. |
+| **CSRF** | **Medium** | If JWTs are stored in cookies, implement `SameSite=Strict` attributes and CSRF tokens. |
+| **Authentication Flaws** | **High** | Ensure `.env` is strongly guarded. Implement API Rate Limiting (`express-rate-limit`) on `authRoutes.js` to prevent brute-force attacks. |
+| **File Uploads** | **Medium** | If users can upload profile pictures, ensure strict MIME-type checking and file size limits using `multer`. |
+
+---
+
+### **PHASE 8: CODE QUALITY REVIEW**
+
+**Refactoring Opportunities:**
+
+* **Duplicate Code:** Extract repetitive SQL query logic into a dedicated Data Access Layer (DAL) or consider introducing an ORM like Prisma or Sequelize.
+* **Magic Strings:** Move status strings (e.g., `'PENDING'`, `'COMPLETED'`) to a shared constants file to prevent typo-driven bugs.
+* **Modular Middleware:** Ensure route protection (`authMiddleware.js`) properly distinguishes between `Admin`, `User`, and `Provider` roles (Role-Based Access Control).
+
+---
+
+### **PHASE 9: UI/UX REVIEW**
+
+* **UI Problems:** The MPA architecture (separate `.html` files) forces full page reloads, causing a disjointed UX.
+* **UX Problems:** Error states (e.g., wrong password, no providers found) likely rely on native browser alerts rather than cohesive UI toast notifications.
+* **Recommended Improvements:** 1. Implement a unified Header/Footer template.
+2. Add loading skeletons or spinners during API fetches.
+3. Ensure mobile responsiveness via CSS Media Queries for the `providerList` and `schedule` views.
+
+---
+
+### **PHASE 10: TESTING ANALYSIS**
+
+**Testing Deficit:** `0%` Test Coverage. No test suites (`Jest`, `Mocha`, `Chai`) or E2E tests (`Cypress`, `Playwright`) were detected in the typical structure.
+
+**Testing Checklist Needed:**
+
+* [ ] Unit tests for `authController` (Token generation, password validation).
+* [ ] Integration tests for the Booking state machine.
+* [ ] WebSocket connection and broadcasting tests.
+* [ ] API endpoint tests (ensure 401s, 403s, 404s, and 200s are thrown correctly).
+
+---
+
+### **PHASE 11: PROJECT COMPLETION ROADMAP**
+
+**1. CRITICAL FIXES (Do First)**
+
+* Implement `mysql2` connection pooling.
+* Set up global asynchronous error handling in `server.js`.
+* Establish strict API endpoint security (JWT validation & Role checks).
+
+**2. IN PROGRESS (Finish Next)**
+
+* Connect the static HTML frontend to the Express backend via Fetch API.
+* Finalize the state-machine logic in `bookingController.js`.
+* Connect `trackingSocket.js` to the frontend map/UI.
+
+**3. TODO (Build from Scratch)**
+
+* Payment Gateway integration (Stripe API).
+* Password Reset & Email notification system.
+* File upload system for User/Provider avatars.
+
+**4. OPTIONAL IMPROVEMENTS (Polishing)**
+
+* Migrate frontend to a SPA framework (React/Vue) or add a lightweight DOM library (Alpine.js) for smoother UX.
+* Add an ORM for safer database transactions.
+
+---
+
+### **PHASE 12: FINAL PROJECT HEALTH REPORT**
+
+* **Overall Completion:** ~ 45%
+* **Frontend Completion:** ~ 60% (UI layouts exist, logic missing)
+* **Backend Completion:** ~ 50% (Routes/Controllers stubbed, logic incomplete)
+* **Database Completion:** ~ 70% (Schema exists, needs indexing/triggers)
+* **Security Score:** ~ 30% (Requires rate-limiting, strict CORS, input sanitization)
+* **Code Quality Score:** ~ 50%
+* **Production Readiness:** 0% (Do not deploy yet)
+
+**Honest Assessment:** Serviio has a solid architectural foundation and a clear vision. The boilerplate work (routing, basic views, database schema) is heavily established. However, the connective tissue—input validation, error handling, frontend-backend API integration, and security hardening—is completely missing. It is a halfway-done prototype that requires strict engineering discipline to reach production readiness.
+
+---
+
+### **MASTER ACTION PLAN**
+
+*(Awaiting your approval to begin executing these steps)*
+
+1. **Step 1:** Establish global error handling, environment variables (`.env`), and security middleware (CORS, Helmet, Rate Limiting).
+2. **Step 2:** Refactor `db.js` for robust connection pooling and wrap queries in async/await wrappers.
+3. **Step 3:** Implement and verify the Auth API (Login, Register, JWT, Role definitions).
+4. **Step 4:** Integrate frontend Auth (storing tokens, protecting UI routes).
+5. **Step 5:** Build out the Booking and Emergency flow APIs and connect to UI.
+6. **Step 6:** Implement real-time WebSockets for tracking.
+7. **Step 7:** Implement Payments and Notifications.
+
+---
+
+### **SEQUENTIAL COMPLETION LOG - 2026-06-06**
+
+**Completed since the original audit:**
+
+* Payment processing API connected to booking payment state and transaction records.
+* Wallet and escrow tables, routes, controller logic, and provider dashboard wallet UI added.
+* Support ticket tables, APIs, admin queue, and customer ticket UI added.
+* Provider KYC verification tables, migrations, provider submission UI/API, and admin review UI/API added.
+* Notification engine added with persistent in-app notifications, read state, and real-time Socket.IO delivery.
+* Review/rating flow completed:
+  * Customers can review only their own completed bookings.
+  * Duplicate reviews per booking are blocked by API checks and `reviews.uniq_booking_review`.
+  * Provider `average_rating` and `total_reviews` are recalculated after review submission.
+  * Provider/customer notifications are created when a review is submitted.
+  * Customer profile shows pending completed bookings and submitted reviews.
+  * Provider detail page displays public customer reviews.
+  * `database/serviio_schema.sql` and `database/migrations/2026_06_06_reviews.sql` updated.
+* Bookmark persistence and rebooking completed:
+  * Added `provider_bookmarks` table with one saved record per customer/provider pair.
+  * Added `/api/bookmarks` customer routes for list, status, save, and remove.
+  * Provider detail page now saves/removes providers through the backend.
+  * Bookmark page now loads saved providers from the database.
+  * Saved providers have direct profile and rebooking links.
+  * `database/serviio_schema.sql` and `database/migrations/2026_06_06_provider_bookmarks.sql` updated.
+* Password reset / OTP recovery completed:
+  * Added `password_reset_requests` table for hashed reset tokens, hashed OTPs, expiry, attempts, and one-time-use status.
+  * Upgraded `/api/auth/forgot-password` to generate a reset link plus six-digit OTP and expire older pending requests.
+  * Upgraded `/api/auth/validate-reset-token` to validate against stored reset requests.
+  * Upgraded `/api/auth/reset-password` to require token + OTP, enforce attempt limits, update password atomically, and mark the request used.
+  * Forgot/reset password frontend pages now use reset-code language and OTP input.
+  * `database/serviio_schema.sql` and `database/migrations/2026_06_06_password_reset_otp.sql` updated.
+
+**Still to do next:**
+
+* Run strict live readiness with real SMTP/SMS/payment/KYC probe credentials.
+* Complete final human exploratory QA against production-like credentials and payment/KYC sandboxes.
+
+**Completed in this continuation:**
+
+* Installed missing backend security dependencies used by `server.js`: `helmet` and `express-rate-limit`.
+* Added shared route-level validation middleware in `backend/middlewares/validationMiddleware.js`.
+* Applied validation to auth, bookings, payments, provider settings/KYC, admin verification, support, wallet escrow release, reviews, and bookmarks.
+* Preserved booking handshake compatibility with both `booking_id`/`handshake_code` and `bookingId`/`handshakeCode` payload styles while adding a direct missing-field guard.
+* Converted backend `npm test` from a placeholder to `node --test`.
+* Added validation middleware tests in `backend/tests/validationMiddleware.test.js`.
+* Removed invalid `mysql2` pool option `acquireTimeout` and quieted `dotenv` startup output.
+* Verified backend syntax, test suite, and controlled server startup with MySQL connection.
+
+**Completed in later production-readiness pass:**
+
+* Added provider payout requests, reserved wallet balances, payout ledger
+  entries, and admin/support approve/reject/mark-paid review controls.
+* Expanded release smoke coverage to verify escrow release plus provider payout
+  creation, admin queue visibility, approval, and paid status.
+* Added focused Socket.IO tests for booking-room authorization, super-admin
+  access, provider location broadcasting, and invalid coordinate rejection.
+* Tightened frontend static QA so API/socket scripts must load after the shared
+  `frontend/js/config.js` deployment wrapper.
+
+**Completed in 2026-06-10 hardening pass:**
+
+* Hardened KYC upload handling with MIME allow-listing, content signature checks,
+  sanitized filenames, size limits, validation-failure cleanup, and safe local-only
+  admin document downloads.
+* Escaped provider dashboard booking, review, message, wallet, KYC, audit, and
+  notification render paths to prevent user-supplied content from being injected
+  through `innerHTML` templates.
+* Removed raw reset-message `innerHTML` rendering in the forgot-password flow.
+* Added frontend QA regression checks for provider list and provider dashboard
+  escaping.
+* Fixed registration OTP expiry to use MySQL `NOW()` for both code creation and
+  verification, preventing app/database timezone drift from expiring fresh codes.
+* Re-verified: backend tests 71/71, frontend static QA, runtime config validation,
+  dependency audit, migrations, demo seed, API smoke, headless browser smoke, and
+  local live readiness all pass.
+
+**Completed in deploy-host cleanup pass:**
+
+* Added `Serviio.apiUrl()` to the shared frontend config.
+* Converted customer profile, provider dashboard, payment, schedule, provider
+  detail, bookmarks, emergency, auth, reset, registration, home, and admin API
+  usage away from page-level hardcoded `http://localhost:5000` values.
+* Added frontend QA coverage so only `frontend/js/config.js` may contain the local
+  backend development default.
+* Re-verified backend tests 71/71 and the full release verifier.
+
+**Completed in release-hygiene / OTP durability pass:**
+
+* Removed unreferenced ad-hoc backend scripts: `backend/test_register.js`,
+  `backend/scripts/debug_provider.js`, and
+  `backend/scripts/clear_test_accounts.js`.
+* Added `backend/scripts/release_hygiene.js` and wired it into
+  `npm run verify:release`.
+* Migrated `registration_verification_requests.expires_at` from `TIMESTAMP` to
+  `DATETIME` so fresh OTP expiry is not affected by MySQL TIMESTAMP timezone
+  conversion.
+* Gated realtime Socket.IO debug logs behind `SERVIIO_SOCKET_DEBUG` /
+  `SERVIIO_DEBUG_LOGS` so production logs stay focused on actionable errors.
+* Hardened strict live readiness so missing SMTP/SMS/payment/KYC provider
+  configuration or probe values are reported as failures instead of soft skips.
+* Removed fixed localhost/mock assumptions from `backend/scripts/e2e_test.ps1`
+  by adding `SERVIIO_E2E_BASE_URL`, `SERVIIO_E2E_PAYMENT_METHOD`, and
+  `SERVIIO_E2E_GATEWAY_REFERENCE`.
+* Replaced direct `role === "admin"` controller checks with shared
+  `isAdminRole()` logic so `super_admin` has consistent booking, payment, and
+  communication access. Added regression coverage in
+  `backend/tests/adminRoleAccess.test.js`.
+* Sanitized admin dashboard dynamic status/toast class tokens and added a
+  frontend QA regression check so user-controlled status values cannot break
+  class attributes.
+* Added shared platform commission-rate validation and payment-side guard so
+  invalid values cannot create negative provider escrow amounts.
+* Added server-level graceful shutdown for `SIGINT`/`SIGTERM`, closing
+  Socket.IO, the HTTP server, and the MySQL pool with a configurable timeout.
